@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  * { box-sizing: border-box; }
+  body { background: #fff; color: #111; }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ── Modal animations ──────────────────────────────────────────────────── */
+@keyframes fade-in   { from { opacity: 0; }                          to { opacity: 1; } }
+@keyframes zoom-in-95 { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.animate-in { animation: fade-in .2s ease, zoom-in-95 .2s ease; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Hero staggered reveal ─────────────────────────────────────────────── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
+.hero-line {
+  opacity: 0;
+  animation: reveal-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-line-1 { animation-delay: 0.1s; }
+.hero-line-2 { animation-delay: 0.35s; }
+.hero-line-3 { animation-delay: 0.55s; }
+.hero-line-4 { animation-delay: 0.75s; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Ticker / marquee welcome banner ───────────────────────────────────── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 18s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
