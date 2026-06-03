@@ -5,7 +5,7 @@ import { productsApi, uploadApi } from "@/lib/api";
 import { Product, ProductCreate, ProductUpdate } from "@/lib/types";
 import toast from "react-hot-toast";
 
-const CATEGORIES = ["Ordinateurs", "Souris", "Claviers", "Écrans", "Imprimantes", "Accessoires", "Réseaux", "Stockage", "Audio", "Autre"];
+const CATEGORIES = ["Ordinateurs", "Souris", "Claviers", "Écrans", "Imprimantes", "Accessoires", "Réseaux", "Stockage", "Audio", "Sécurité Électronique", "Autre"];
 const PAGE_SIZE = 10;
 
 const EMPTY: ProductCreate = {
