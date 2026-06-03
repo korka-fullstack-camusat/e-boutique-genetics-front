@@ -4,7 +4,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { LayoutDashboard, ShoppingCart, ClipboardList, LogOut, Menu, X, Package, Users } from "lucide-react";
 import Link from "next/link";
 
-const NAV = [
+type NavItem = { href: string; label: string; icon: React.ElementType };
+
+const NAV_FULL: NavItem[] = [
   { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin",           label: "Produits",        icon: Package },
   { href: "/admin/orders",    label: "Commandes",       icon: ShoppingCart },
@@ -12,24 +14,36 @@ const NAV = [
   { href: "/admin/accounts",  label: "Gestion comptes", icon: Users },
 ];
 
-function SidebarBrand() {
+const NAV_GESTIONNAIRE: NavItem[] = [
+  { href: "/admin", label: "Produits", icon: Package },
+];
+
+// Pages accessibles uniquement aux admins complets
+const ADMIN_ONLY_PATHS = [
+  "/admin/dashboard",
+  "/admin/orders",
+  "/admin/surveys",
+  "/admin/accounts",
+];
+
+function SidebarBrand({ subtitle }: { subtitle: string }) {
   return (
     <Link href="/" className="flex items-center gap-3 px-5 py-5 border-b border-white/10 group">
       <div>
         <p className="font-black text-sm text-white tracking-wide group-hover:text-amber-400 transition-colors">
           GROUPE <span className="text-amber-400">GENETICS</span>
         </p>
-        <p className="text-[11px] text-white/35 mt-0.5">Espace Administration</p>
+        <p className="text-[11px] text-white/35 mt-0.5">{subtitle}</p>
       </div>
     </Link>
   );
 }
 
-function SidebarNav({ onNav }: { onNav?: () => void }) {
+function SidebarNav({ items, onNav }: { items: NavItem[]; onNav?: () => void }) {
   const pathname = usePathname();
   return (
     <nav className="flex-1 py-4 space-y-0.5 px-3">
-      {NAV.map(({ href, label, icon: Icon }) => (
+      {items.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
@@ -49,31 +63,49 @@ function SidebarNav({ onNav }: { onNav?: () => void }) {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const router   = useRouter();
+  const pathname = usePathname();
+
   const [authed, setAuthed]           = useState<boolean | null>(null);
+  const [role,   setRole]             = useState<string>("admin");
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
 
+  // Auth + rôle
   useEffect(() => {
     const token = localStorage.getItem("gg_admin_token");
-    if (!token) router.replace("/");
-    else setAuthed(true);
+    if (!token) { router.replace("/"); return; }
+    const storedRole = localStorage.getItem("gg_admin_role") || "admin";
+    setRole(storedRole);
+    setAuthed(true);
   }, [router]);
+
+  // Protection des pages réservées aux admins
+  useEffect(() => {
+    if (!authed) return;
+    if (role === "gestionnaire" && ADMIN_ONLY_PATHS.includes(pathname)) {
+      router.replace("/admin");
+    }
+  }, [authed, role, pathname, router]);
 
   function confirmLogout() {
     localStorage.removeItem("gg_admin_token");
+    localStorage.removeItem("gg_admin_role");
     router.replace("/");
   }
 
   if (authed === null) return null;
+
+  const navItems  = role === "gestionnaire" ? NAV_GESTIONNAIRE : NAV_FULL;
+  const subtitle  = role === "gestionnaire" ? "Gestion des produits" : "Espace Administration";
 
   return (
     <div className="min-h-screen flex bg-gray-50">
 
       {/* ── Sidebar desktop ────────────────────────────────────────────── */}
       <aside className="hidden lg:flex w-64 flex-col bg-gray-900 text-white flex-shrink-0">
-        <SidebarBrand />
-        <SidebarNav />
+        <SidebarBrand subtitle={subtitle} />
+        <SidebarNav items={navItems} />
         <div className="px-4 py-4 border-t border-white/10">
           <button
             onClick={() => setLogoutModal(true)}
@@ -96,7 +128,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <X size={18} className="text-white/50" />
               </button>
             </div>
-            <SidebarNav onNav={() => setMobileOpen(false)} />
+            <SidebarNav items={navItems} onNav={() => setMobileOpen(false)} />
             <div className="px-4 py-4 border-t border-white/10">
               <button
                 onClick={() => { setMobileOpen(false); setLogoutModal(true); }}
@@ -112,7 +144,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Main ───────────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile topbar */}
         <div className="lg:hidden bg-gray-900 text-white px-4 h-14 flex items-center gap-3 border-b border-white/10">
           <button onClick={() => setMobileOpen(true)}>
             <Menu size={20} />

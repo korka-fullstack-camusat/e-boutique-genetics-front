@@ -25,10 +25,12 @@ export function LoginModal({ open, onClose }: Props) {
     try {
       const res = await authApi.login(email, password);
       if (res.success && res.user?.token) {
+        const role = (res.user.role as string) || "admin";
         localStorage.setItem("gg_admin_token", res.user.token as string);
+        localStorage.setItem("gg_admin_role",  role);
         toast.success("Connexion réussie");
         onClose();
-        router.push("/admin/dashboard");
+        router.push(role === "gestionnaire" ? "/admin" : "/admin/dashboard");
       } else {
         toast.error("Identifiants incorrects");
       }

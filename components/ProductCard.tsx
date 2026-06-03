@@ -31,12 +31,12 @@ export function ProductCard({ product, onDetail }: Props) {
       onClick={() => onDetail(product)}
     >
       {/* Image */}
-      <div className="aspect-[3/4] bg-gray-50 overflow-hidden relative">
+      <div className="aspect-square bg-white overflow-hidden relative border-b border-gray-100">
         {img ? (
           <img
             src={img}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
         ) : (

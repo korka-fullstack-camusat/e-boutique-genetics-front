@@ -9,12 +9,14 @@ import { AdminUser } from "@/lib/types";
 import toast from "react-hot-toast";
 
 const ROLE_STYLES: Record<string, string> = {
-  superadmin: "bg-amber-100 text-amber-700",
-  admin:      "bg-blue-100 text-blue-700",
+  superadmin:   "bg-amber-100 text-amber-700",
+  admin:        "bg-blue-100 text-blue-700",
+  gestionnaire: "bg-purple-100 text-purple-700",
 };
 const ROLE_LABELS: Record<string, string> = {
-  superadmin: "Super Admin",
-  admin:      "Admin",
+  superadmin:   "Super Admin",
+  admin:        "Admin",
+  gestionnaire: "Gestionnaire",
 };
 
 const EMPTY_FORM = { name: "", email: "", password: "", role: "admin" };
@@ -178,6 +180,7 @@ export default function AdminAccountsPage() {
           className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
         >
           <option value="">Tous les rôles</option>
+          <option value="gestionnaire">Gestionnaire</option>
           <option value="admin">Admin</option>
           <option value="superadmin">Super Admin</option>
         </select>
@@ -473,8 +476,9 @@ export default function AdminAccountsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 bg-white transition-colors"
                 >
-                  <option value="admin">Admin</option>
-                  <option value="superadmin">Super Admin</option>
+                  <option value="gestionnaire">Gestionnaire — Produits uniquement</option>
+                  <option value="admin">Admin — Accès complet</option>
+                  <option value="superadmin">Super Admin — Accès complet</option>
                 </select>
               </div>
 
