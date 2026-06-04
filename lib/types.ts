@@ -46,6 +46,9 @@ export interface OrderCreate {
   customer_address?: string | null;
   payment_method: string;
   total_amount: number;
+  delivery_method?: string | null;
+  delivery_fee?: number;
+  acompte_amount?: number | null;
   items: OrderItemCreate[];
 }
 
