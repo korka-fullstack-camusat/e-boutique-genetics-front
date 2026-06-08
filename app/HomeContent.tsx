@@ -9,6 +9,7 @@ import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { CheckoutModal } from "@/components/CheckoutModal";
 import { ContactModal } from "@/components/ContactModal";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 interface Props {
   initialProducts: Product[];
@@ -32,10 +33,10 @@ export function HomeContent({ initialProducts }: Props) {
         />
         <div className="relative max-w-7xl mx-auto px-4 py-14 sm:py-24 text-center">
           <h1 className="hero-line hero-line-1 text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-snug px-2">
-            Bienvenue sur votre <span className="text-amber-400">E-Boutique</span> de Groupe Genetics
+            Le meilleur de la <span className="text-amber-400">technologie</span>, à portée de clic
           </h1>
           <p className="hero-line hero-line-2 text-white/70 mt-4 text-sm sm:text-lg max-w-xl mx-auto px-2">
-            Découvrez notre sélection d'ordinateurs, souris, claviers et accessoires digitaux de qualité.
+            Acheter plus qu'un produit, investissez dans la performance.
           </p>
           <div className="hero-line hero-line-4 flex items-center justify-center gap-3 mt-8 flex-wrap px-4">
             <Link
@@ -92,11 +93,7 @@ export function HomeContent({ initialProducts }: Props) {
         </div>
       </main>
 
-      {/* ── Footer ─────────────────────────────────────────────────────── */}
-      <footer className="bg-gray-900 text-white/50 text-center py-8 mt-8">
-        <p className="font-bold text-white tracking-widest uppercase text-sm">GROUPE GENETICS</p>
-        <p className="text-xs mt-1">© 2024 — Tous droits réservés</p>
-      </footer>
+      <Footer />
 
       {/* ── Overlays ───────────────────────────────────────────────────── */}
       <CartSidebar

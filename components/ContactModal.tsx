@@ -36,7 +36,7 @@ export function ContactModal({ open, onClose }: Props) {
               </div>
               <div className="flex items-center gap-3 text-gray-700 text-sm">
                 <Mail size={15} className="text-amber-500 flex-shrink-0" />
-                <span>contact@groupegenetics.com</span>
+                <span>market@groupegenetics.com</span>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@ export function ContactModal({ open, onClose }: Props) {
               </div>
               <div className="flex items-center gap-3 text-gray-700 text-sm">
                 <Mail size={15} className="text-amber-500 flex-shrink-0" />
-                <span>contact@groupegenetics.com</span>
+                <span>market@groupegenetics.com</span>
               </div>
             </div>
           </div>

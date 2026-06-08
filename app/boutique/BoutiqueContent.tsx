@@ -8,6 +8,7 @@ import { CartSidebar } from "@/components/CartSidebar";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { CheckoutModal } from "@/components/CheckoutModal";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 // ── Inner component (needs useSearchParams → Suspense) ─────────────────────────
 function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
@@ -112,10 +113,7 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
         )}
       </main>
 
-      <footer className="bg-gray-900 text-white/50 text-center py-8 mt-8">
-        <p className="font-bold text-white tracking-widest uppercase text-sm">GROUPE GENETICS</p>
-        <p className="text-xs mt-1">© 2024 — Tous droits réservés</p>
-      </footer>
+      <Footer />
 
       <CartSidebar
         open={cartOpen}
