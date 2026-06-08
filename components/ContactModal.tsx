@@ -152,9 +152,9 @@ export function ContactModal({ open, onClose }: Props) {
               {/* CTA vers devis */}
               <button
                 onClick={() => setTab("devis")}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 font-semibold text-sm hover:bg-amber-100 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-white font-semibold text-sm transition-colors"
               >
-                <FileText size={15} /> Demander un devis personnalisé
+                <FileText size={15} /> Demander un devis
               </button>
             </div>
           )}
@@ -173,7 +173,7 @@ export function ContactModal({ open, onClose }: Props) {
                   </p>
                   <button
                     onClick={handleClose}
-                    className="mt-6 px-6 py-2.5 bg-amber-500 text-white rounded-full font-semibold text-sm hover:bg-amber-400 transition-colors"
+                    className="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
                   >
                     Fermer
                   </button>
@@ -261,7 +261,7 @@ export function ContactModal({ open, onClose }: Props) {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-bold rounded-full text-sm transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold rounded-full text-sm transition-colors flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <><Loader2 size={16} className="animate-spin" /> Envoi en cours...</>
