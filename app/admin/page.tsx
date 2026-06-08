@@ -5,7 +5,16 @@ import { productsApi, uploadApi } from "@/lib/api";
 import { Product, ProductCreate, ProductUpdate } from "@/lib/types";
 import toast from "react-hot-toast";
 
-const CATEGORIES = ["Ordinateurs", "Souris", "Claviers", "Écrans", "Imprimantes", "Accessoires", "Réseaux", "Stockage", "Audio", "Sécurité Électronique", "Autre"];
+const CATEGORIES = [
+  "Vidéosurveillance",
+  "Contrôle d'Accès/Anti-intrusion",
+  "Câblage informatique",
+  "Énergie",
+  "Ordinateurs/Serveurs",
+  "Connectivité/Sécurité",
+  "Téléphonie/Visioconférence",
+  "Accessoires et Périphériques",
+];
 const PAGE_SIZE = 10;
 
 const EMPTY: ProductCreate = {
