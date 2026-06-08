@@ -110,6 +110,21 @@ export const adminUsersApi = {
     authRequest<{ success: boolean }>(`/api/admin-users/${id}`, { method: "DELETE" }),
 };
 
+// ── Devis / Contact ───────────────────────────────────────────────────────────
+export const contactApi = {
+  devis: (data: {
+    name: string;
+    email: string;
+    phone?: string;
+    service: string;
+    description: string;
+  }) =>
+    request<{ message: string }>("/api/contact/devis", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};
+
 // ── Survey ────────────────────────────────────────────────────────────────────
 export const surveysApi = {
   list: () => request<Survey[]>("/api/survey/surveys/"),

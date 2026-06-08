@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   title: "E-Boutique — Groupe Genetics",
   description: "Découvrez la boutique de Groupe Genetics",
   icons: {
-    icon: "/logo.jpeg",
-    apple: "/logo.jpeg",
+    icon: [{ url: "/logo.jpeg", type: "image/jpeg" }],
+    apple: [{ url: "/logo.jpeg", type: "image/jpeg" }],
   },
 };
 

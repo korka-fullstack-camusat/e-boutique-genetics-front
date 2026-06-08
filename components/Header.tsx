@@ -55,7 +55,7 @@ export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hid
             {/* Logo + brand */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
               <Image
-                src="/logo.png"
+                src="/logo.jpeg"
                 alt="Groupe Genetics"
                 width={52}
                 height={52}
