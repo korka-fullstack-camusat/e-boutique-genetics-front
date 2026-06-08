@@ -54,14 +54,16 @@ export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hid
 
             {/* Logo + brand */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-              <Image
-                src="/logo.jpeg"
-                alt="Groupe Genetics"
-                width={52}
-                height={52}
-                className="object-contain hidden sm:block w-14 h-14"
-                priority
-              />
+              <div className="hidden sm:flex w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 flex-shrink-0 bg-white">
+                <Image
+                  src="/logo.jpeg"
+                  alt="Groupe Genetics"
+                  width={48}
+                  height={48}
+                  className="object-contain w-full h-full"
+                  priority
+                />
+              </div>
               <span className="text-white font-bold text-sm sm:text-base tracking-wide group-hover:text-amber-400 transition-colors whitespace-nowrap">
                 E-Boutique
               </span>
