@@ -76,8 +76,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 py-5 text-center text-xs">
-          <p className="font-bold text-white tracking-widest uppercase">GROUPE GENETICS</p>
-          <p className="mt-1">© 2024 — Tous droits réservés</p>
+          <p className="font-bold text-white tracking-widest uppercase">E-BOUTIQUE GROUPE GENETICS</p>
+          <p className="mt-1">© 2026 — Tous droits réservés</p>
         </div>
       </footer>
 
