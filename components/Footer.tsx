@@ -14,12 +14,27 @@ export function Footer() {
 
           {/* ── Genetics ─────────────────────────────────────────────── */}
           <div>
-            <p className="font-bold text-white tracking-widest uppercase text-sm mb-3">Genetics</p>
+            <a
+              href="https://www.groupegenetics.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-white tracking-widest uppercase text-sm mb-3 hover:text-amber-400 transition-colors inline-block"
+            >
+              Genetics
+            </a>
             <p className="text-sm leading-relaxed">
               Accélérer l'innovation avec des équipes techniques de classe mondiale.
               Nous vous mettons en relation avec une équipe composée d'incroyables talents.
             </p>
             <p className="text-xs text-amber-400 mt-3 italic">Transform your business by the digital</p>
+            <a
+              href="https://www.groupegenetics.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-3 text-xs text-white/50 hover:text-white underline underline-offset-2 transition-colors"
+            >
+              www.groupegenetics.com ↗
+            </a>
           </div>
 
           {/* ── Navigation ───────────────────────────────────────────── */}
@@ -40,9 +55,10 @@ export function Footer() {
           <div>
             <p className="font-bold text-white uppercase text-sm tracking-widest mb-3">Services IT</p>
             <ul className="space-y-2 text-sm">
-              <li>Pôle Support et Intégration</li>
-              <li>Pôle Cloud et Apps</li>
-              <li>Pôle Conseil et Transformation Digitale</li>
+              <li>Sécurité électronique</li>
+              <li>Infrastructures et services managés</li>
+              <li>Cloud computing</li>
+              <li>Conseils stratégiques</li>
             </ul>
           </div>
 
@@ -56,19 +72,13 @@ export function Footer() {
                   <MapPin size={14} className="mt-0.5 flex-shrink-0" /> Zac Mbao, Rond-Point SIPRES, Dakar, Sénégal
                 </p>
                 <p className="flex items-center gap-2 mt-1.5">
-                  <Phone size={14} className="flex-shrink-0" /> +221 77 879 61 46
+                  <Phone size={14} className="flex-shrink-0" /> +221 78 879 00 00
+                </p>
+                <p className="flex items-center gap-2 mt-1">
+                  <Phone size={14} className="flex-shrink-0" /> +221 78 879 09 09
                 </p>
               </div>
-              <div>
-                <p className="text-amber-400 font-semibold text-xs uppercase tracking-wider mb-1.5">Bureau Gambie</p>
-                <p className="flex items-start gap-2">
-                  <MapPin size={14} className="mt-0.5 flex-shrink-0" /> Baraka Estate, Bakoteh, Gambia
-                </p>
-                <p className="flex items-center gap-2 mt-1.5">
-                  <Phone size={14} className="flex-shrink-0" /> +220 271 7816
-                </p>
-              </div>
-              <p className="flex items-center gap-2">
+<p className="flex items-center gap-2">
                 <Mail size={14} className="flex-shrink-0" /> market@groupegenetics.com
               </p>
             </div>

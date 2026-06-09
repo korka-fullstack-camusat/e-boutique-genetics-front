@@ -43,13 +43,13 @@ export function HomeContent({ initialProducts }: Props) {
               href="/boutique"
               className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-amber-500 text-gray-900 rounded-full font-bold text-sm hover:bg-amber-400 transition-colors"
             >
-              Commander <ArrowRight size={16} />
+              Découvrir le catalogue <ArrowRight size={16} />
             </Link>
             <button
               onClick={() => setContactOpen(true)}
               className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 border-2 border-white/40 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-colors"
             >
-              Contactez-nous
+              Demander un devis
             </button>
           </div>
         </div>
