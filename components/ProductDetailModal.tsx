@@ -88,7 +88,7 @@ export function ProductDetailModal({ product, onClose }: Props) {
               <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
                 product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
               }`}>
-                {product.stock > 0 ? `✓ En stock (${product.stock})` : "✗ Épuisé"}
+                {product.stock > 0 ? "✓ En stock" : "✗ Épuisé"}
               </span>
             </div>
 
