@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Plus, Pencil, Trash2, X, Upload, Package, Settings2, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { productsApi, uploadApi } from "@/lib/api";
+import { productsApi, uploadApi, revalidateApi } from "@/lib/api";
 import { Product, ProductCreate, ProductUpdate } from "@/lib/types";
 import toast from "react-hot-toast";
 
@@ -88,6 +88,7 @@ export default function AdminProductsPage() {
       }
       setModalOpen(false);
       loadProducts();
+      revalidateApi.refresh(); // reflète immédiatement le changement côté client
     } catch { toast.error("Erreur lors de la sauvegarde"); }
     finally { setSaving(false); }
   }
@@ -102,6 +103,7 @@ export default function AdminProductsPage() {
       setManagedProduct(null);
       setDetailProduct(null);
       loadProducts();
+      revalidateApi.refresh(); // reflète immédiatement le changement côté client
     } catch { toast.error("Erreur suppression"); }
     finally { setDeleting(false); }
   }

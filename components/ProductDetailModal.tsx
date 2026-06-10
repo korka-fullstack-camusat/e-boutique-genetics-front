@@ -13,9 +13,15 @@ interface Props {
 
 export function ProductDetailModal({ product, onClose }: Props) {
   const [imgIdx, setImgIdx] = useState(0);
+  const [imgError, setImgError] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
 
   if (!product) return null;
+
+  function selectImg(i: number) {
+    setImgIdx(i);
+    setImgError(false);
+  }
 
   function handleAdd() {
     if (!product) return;
@@ -42,11 +48,12 @@ export function ProductDetailModal({ product, onClose }: Props) {
 
           {/* ── Image principale ───────────────────────────────────────── */}
           <div className="aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100">
-            {images.length > 0 ? (
+            {images.length > 0 && !imgError ? (
               <img
                 src={images[imgIdx]}
                 alt={product.name}
                 className="w-full h-full object-contain p-4"
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-6xl text-gray-200 bg-gray-50">
@@ -61,12 +68,17 @@ export function ProductDetailModal({ product, onClose }: Props) {
               {images.map((img, i) => (
                 <button
                   key={i}
-                  onClick={() => setImgIdx(i)}
+                  onClick={() => selectImg(i)}
                   className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${
                     i === imgIdx ? "border-amber-500" : "border-gray-100 hover:border-gray-300"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-contain p-1" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-contain p-1"
+                    onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
+                  />
                 </button>
               ))}
             </div>

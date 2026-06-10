@@ -125,6 +125,12 @@ export const contactApi = {
     }),
 };
 
+// ── Revalidation (cache ISR du site public) ───────────────────────────────────
+export const revalidateApi = {
+  /** Vide le cache des pages "/" et "/boutique" pour refléter les changements produits immédiatement. */
+  refresh: () => fetch("/api/revalidate", { method: "POST" }).catch(() => {}),
+};
+
 // ── Survey ────────────────────────────────────────────────────────────────────
 export const surveysApi = {
   list: () => request<Survey[]>("/api/survey/surveys/"),

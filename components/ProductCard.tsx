@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { Product } from "@/lib/types";
 import { CategoryBadge } from "./ui/Badge";
 import { useCartStore } from "@/store/cartStore";
@@ -11,6 +12,7 @@ interface Props {
 
 export function ProductCard({ product, onDetail }: Props) {
   const addItem = useCartStore((s) => s.addItem);
+  const [imgError, setImgError] = useState(false);
 
   const img = product.images?.[0];
   const hasOptions = product.sizes?.length > 0 || product.colors?.length > 0;
@@ -32,12 +34,13 @@ export function ProductCard({ product, onDetail }: Props) {
     >
       {/* Image */}
       <div className="aspect-square bg-white overflow-hidden relative border-b border-gray-100">
-        {img ? (
+        {img && !imgError ? (
           <img
             src={img}
             alt={product.name}
             className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl text-gray-200 bg-gradient-to-br from-gray-50 to-gray-100">
