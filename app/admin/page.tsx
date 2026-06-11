@@ -20,6 +20,7 @@ const PAGE_SIZE = 10;
 const EMPTY: ProductCreate = {
   name: "", description: "", price: 0, category: "",
   sous_category: "", stock: 0, images: [], sizes: [], colors: [],
+  condition: "neuf",
 };
 
 export default function AdminProductsPage() {
@@ -61,6 +62,7 @@ export default function AdminProductsPage() {
       price: p.price, category: p.category || "",
       sous_category: p.sous_category || "", stock: p.stock,
       images: p.images || [], sizes: [], colors: [],
+      condition: p.condition || "neuf",
     });
     setModalOpen(true);
   }
@@ -372,6 +374,12 @@ export default function AdminProductsPage() {
                   <p className="text-xs font-bold text-gray-400 uppercase mb-1">Référence</p>
                   <p className="text-sm font-semibold text-gray-800">#{detailProduct.id}</p>
                 </div>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs font-bold text-gray-400 uppercase mb-1">État</p>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {detailProduct.condition === "reconditionne" ? "Reconditionné" : "Neuf"}
+                  </p>
+                </div>
               </div>
 
               {/* Actions */}
@@ -531,6 +539,35 @@ export default function AdminProductsPage() {
                   <option value="">Sélectionner une catégorie</option>
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
+              </div>
+
+              {/* État du produit */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">État du produit</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => set("condition", "neuf")}
+                    className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                      (form.condition || "neuf") === "neuf"
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    Neuf
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => set("condition", "reconditionne")}
+                    className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                      form.condition === "reconditionne"
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    Reconditionné
+                  </button>
+                </div>
               </div>
 
               {/* Description */}

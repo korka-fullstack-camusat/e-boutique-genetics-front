@@ -9,6 +9,7 @@ export interface Product {
   images: string[];
   sizes: string[];
   colors: string[];
+  condition?: string | null;
   created_at: string;
 }
 
@@ -22,6 +23,7 @@ export interface ProductCreate {
   images?: string[];
   sizes?: string[];
   colors?: string[];
+  condition?: string | null;
 }
 
 export interface ProductUpdate extends Partial<ProductCreate> {}

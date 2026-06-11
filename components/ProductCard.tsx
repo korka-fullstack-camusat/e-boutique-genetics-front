@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Product } from "@/lib/types";
-import { CategoryBadge } from "./ui/Badge";
+import { CategoryBadge, ConditionBadge } from "./ui/Badge";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 
@@ -47,6 +47,9 @@ export function ProductCard({ product, onDetail }: Props) {
             🖥️
           </div>
         )}
+        <div className="absolute top-2 left-2">
+          <ConditionBadge condition={product.condition} />
+        </div>
         {product.stock === 0 && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">

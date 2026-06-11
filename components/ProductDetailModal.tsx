@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { X, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/types";
-import { CategoryBadge } from "./ui/Badge";
+import { CategoryBadge, ConditionBadge } from "./ui/Badge";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 
@@ -88,6 +88,7 @@ export function ProductDetailModal({ product, onClose }: Props) {
           <div className="space-y-3">
             {/* Badges catégorie */}
             <div className="flex flex-wrap gap-1.5">
+              <ConditionBadge condition={product.condition} />
               {product.category     && <CategoryBadge label={product.category} />}
               {product.sous_category && <CategoryBadge label={product.sous_category} />}
             </div>
