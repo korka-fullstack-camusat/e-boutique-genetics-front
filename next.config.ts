@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
 
   // En-têtes de cache pour les assets statiques
   async headers() {
-    return [
+    const headers = [
       {
         source: "/(.*)",
         headers: [
@@ -24,14 +24,21 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options",        value: "SAMEORIGIN" },
         ],
       },
-      {
-        // Cache long pour les fichiers statiques (JS, CSS, images)
+    ];
+
+    // Cache long pour les fichiers statiques (JS, CSS, images) — uniquement en
+    // production, car en dev (Turbopack) les chemins ne sont pas hashés et un
+    // cache "immutable" empêcherait le navigateur de voir les changements de code.
+    if (process.env.NODE_ENV === "production") {
+      headers.push({
         source: "/_next/static/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
-      },
-    ];
+      });
+    }
+
+    return headers;
   },
 };
 

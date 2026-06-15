@@ -21,6 +21,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   const { items, total, clearCart } = useCartStore();
 
   const [step,          setStep]          = useState<1 | 2>(1);
+  const [paymentSubStep, setPaymentSubStep] = useState<"choice" | "details">("choice");
   const [payMethod,     setPayMethod]     = useState<PayMethod>("wave_complet");
   const [acomptePct,    setAcomptePct]    = useState(0.5);
   const [customAcompte, setCustomAcompte] = useState("");
@@ -41,7 +42,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   }
 
   function handleClose() {
-    setStep(1); setPayMethod("wave_complet");
+    setStep(1); setPaymentSubStep("choice"); setPayMethod("wave_complet");
     setAcomptePct(0.5); setCustomAcompte("");
     setForm({ name: "", email: "", phone: "", address: "" });
     onClose();
@@ -121,107 +122,118 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
           {/* ── ÉTAPE 1 : Paiement ──────────────────────────────────────── */}
           {step === 1 && (
             <div className="space-y-2.5">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Comment souhaitez-vous payer ?</p>
+              {paymentSubStep === "choice" ? (
+                <>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Comment souhaitez-vous payer ?</p>
 
-              {/* Wave complet */}
-              <button
-                onClick={() => setPayMethod("wave_complet")}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 text-left transition-all ${
-                  payMethod === "wave_complet" ? "border-blue-600 bg-blue-600 text-white" : "border-gray-100 hover:border-gray-300"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${payMethod === "wave_complet" ? "bg-white/15" : "bg-blue-50"}`}>
-                  <Smartphone size={17} className={payMethod === "wave_complet" ? "text-white" : "text-blue-600"} />
-                </div>
-                <span className="flex-1 text-sm font-semibold">Wave — Paiement complet</span>
-                <span className={`text-sm font-bold ${payMethod === "wave_complet" ? "text-white" : "text-blue-600"}`}>
-                  {grandTotal.toLocaleString("fr-FR")} F
-                </span>
-              </button>
+                  {/* Paiement complet */}
+                  <button
+                    onClick={() => { setPayMethod("wave_complet"); setPaymentSubStep("details"); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-blue-400 text-left transition-all"
+                  >
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50">
+                      <Smartphone size={17} className="text-blue-600" />
+                    </div>
+                    <span className="flex-1 text-sm font-semibold">Paiement complet</span>
+                    <span className="text-sm font-bold text-blue-600">{grandTotal.toLocaleString("fr-FR")} F</span>
+                  </button>
 
-              {/* Wave acompte */}
-              <button
-                onClick={() => setPayMethod("wave_acompte")}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 text-left transition-all ${
-                  payMethod === "wave_acompte" ? "border-purple-600 bg-purple-600 text-white" : "border-gray-100 hover:border-gray-300"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${payMethod === "wave_acompte" ? "bg-white/15" : "bg-purple-50"}`}>
-                  <Smartphone size={17} className={payMethod === "wave_acompte" ? "text-white" : "text-purple-600"} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">Wave — Acompte</p>
-                  <p className={`text-xs ${payMethod === "wave_acompte" ? "text-white/70" : "text-gray-400"}`}>
-                    Min. 30% maintenant, reste à la livraison
+                  {/* Paiement Acompte */}
+                  <button
+                    onClick={() => { setPayMethod("wave_acompte"); setPaymentSubStep("details"); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-purple-400 text-left transition-all"
+                  >
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-purple-50">
+                      <Smartphone size={17} className="text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Paiement Acompte</p>
+                      <p className="text-xs text-gray-400">Min. 30% maintenant, reste à la livraison</p>
+                    </div>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Retour vers le choix du mode de paiement */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentSubStep("choice")}
+                    className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors mb-1"
+                  >
+                    <ChevronLeft size={15} /> Retour
+                  </button>
+
+                  <p className="text-sm font-semibold text-gray-700 mb-1">
+                    {payMethod === "wave_complet" ? "Paiement complet" : "Paiement avec acompte"}
                   </p>
-                </div>
-              </button>
 
-              {/* Sélecteur acompte */}
-              {payMethod === "wave_acompte" && (
-                <div className="bg-purple-50 rounded-2xl p-4 space-y-3">
-                  <div className="flex gap-2">
-                    {ACOMPTE_PRESETS.map((p) => {
-                      const amt    = Math.round(grandTotal * p.pct);
-                      const active = acomptePct === p.pct && !customAcompte;
-                      return (
-                        <button
-                          key={p.pct}
-                          onClick={() => { setAcomptePct(p.pct); setCustomAcompte(""); }}
-                          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                            active ? "bg-purple-600 text-white" : "bg-white text-purple-700 border border-purple-200"
-                          }`}
-                        >
-                          {p.label}
-                          <span className={`block text-xs font-normal mt-0.5 ${active ? "text-white/80" : "text-purple-400"}`}>
-                            {amt.toLocaleString("fr-FR")} F
-                          </span>
-                        </button>
-                      );
-                    })}
+                  {/* Sélecteur acompte */}
+                  {payMethod === "wave_acompte" && (
+                    <div className="bg-purple-50 rounded-2xl p-4 space-y-3">
+                      <div className="flex gap-2">
+                        {ACOMPTE_PRESETS.map((p) => {
+                          const amt    = Math.round(grandTotal * p.pct);
+                          const active = acomptePct === p.pct && !customAcompte;
+                          return (
+                            <button
+                              key={p.pct}
+                              onClick={() => { setAcomptePct(p.pct); setCustomAcompte(""); }}
+                              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                                active ? "bg-purple-600 text-white" : "bg-white text-purple-700 border border-purple-200"
+                              }`}
+                            >
+                              {p.label}
+                              <span className={`block text-xs font-normal mt-0.5 ${active ? "text-white/80" : "text-purple-400"}`}>
+                                {amt.toLocaleString("fr-FR")} F
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <input
+                        type="number"
+                        value={customAcompte}
+                        onChange={(e) => setCustomAcompte(e.target.value)}
+                        placeholder={`Autre montant (min. ${minAcompte.toLocaleString("fr-FR")} F)`}
+                        className="w-full px-3 py-2.5 border border-purple-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 bg-white"
+                      />
+                      <div className="flex justify-between text-sm font-semibold">
+                        <span className="text-purple-700">Acompte</span>
+                        <span className="text-purple-700">{(acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>Reste à la livraison</span>
+                        <span>{(grandTotal - (acompteAmt ?? 0)).toLocaleString("fr-FR")} FCFA</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Wave : lien de paiement avec montant pré-rempli */}
+                  <div className="bg-blue-50 rounded-2xl p-4 text-center space-y-2.5">
+                    <p className="text-xs text-blue-500">
+                      Montant à payer : <span className="font-bold">
+                        {Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA
+                      </span>
+                    </p>
+                    <a
+                      href={`${WAVE_PAYMENT_LINK}?amount=${Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors"
+                    >
+                      <Smartphone size={16} /> Payer avec Wave
+                    </a>
+                    <p className="text-xs text-blue-400">Vous serez redirigé vers l&apos;application Wave</p>
                   </div>
-                  <input
-                    type="number"
-                    value={customAcompte}
-                    onChange={(e) => setCustomAcompte(e.target.value)}
-                    placeholder={`Autre montant (min. ${minAcompte.toLocaleString("fr-FR")} F)`}
-                    className="w-full px-3 py-2.5 border border-purple-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 bg-white"
-                  />
-                  <div className="flex justify-between text-sm font-semibold">
-                    <span className="text-purple-700">Acompte</span>
-                    <span className="text-purple-700">{(acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>Reste à la livraison</span>
-                    <span>{(grandTotal - (acompteAmt ?? 0)).toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                </div>
+
+                  <button
+                    onClick={() => setStep(2)}
+                    className="w-full flex items-center justify-center gap-2 mt-4 py-3.5 bg-amber-500 text-gray-900 rounded-2xl font-bold text-sm hover:bg-amber-400 transition-colors"
+                  >
+                    Suivant <ChevronRight size={16} />
+                  </button>
+                </>
               )}
-
-              {/* Wave : lien de paiement avec montant pré-rempli */}
-              <div className="bg-blue-50 rounded-2xl p-4 text-center space-y-2.5">
-                <p className="text-xs text-blue-500">
-                  Montant à payer : <span className="font-bold">
-                    {Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA
-                  </span>
-                </p>
-                <a
-                  href={`${WAVE_PAYMENT_LINK}?amount=${Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors"
-                >
-                  <Smartphone size={16} /> Payer avec Wave
-                </a>
-                <p className="text-xs text-blue-400">Vous serez redirigé vers l&apos;application Wave</p>
-              </div>
-
-              <button
-                onClick={() => setStep(2)}
-                className="w-full flex items-center justify-center gap-2 mt-4 py-3.5 bg-amber-500 text-gray-900 rounded-2xl font-bold text-sm hover:bg-amber-400 transition-colors"
-              >
-                Suivant <ChevronRight size={16} />
-              </button>
             </div>
           )}
 
