@@ -28,12 +28,14 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
   // Filtrage 100% local — instantané, zéro appel réseau
   const products = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return initialProducts.filter((p) => {
-      const matchSearch   = !q || p.name.toLowerCase().includes(q) || (p.description || "").toLowerCase().includes(q);
-      const matchCat      = !category     || p.category === category;
-      const matchSousCat  = !sousCategory || p.sous_category === sousCategory;
-      return matchSearch && matchCat && matchSousCat;
-    });
+    return initialProducts
+      .filter((p) => {
+        const matchSearch   = !q || p.name.toLowerCase().includes(q) || (p.description || "").toLowerCase().includes(q);
+        const matchCat      = !category     || p.category === category;
+        const matchSousCat  = !sousCategory || p.sous_category === sousCategory;
+        return matchSearch && matchCat && matchSousCat;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "fr"));
   }, [initialProducts, search, category, sousCategory]);
 
   function reset() { setSearch(""); setCategory(""); setSousCategory(""); }
