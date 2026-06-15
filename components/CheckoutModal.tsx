@@ -25,6 +25,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   const [payMethod,     setPayMethod]     = useState<PayMethod>("wave_complet");
   const [acomptePct,    setAcomptePct]    = useState(0.5);
   const [customAcompte, setCustomAcompte] = useState("");
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [form,          setForm]          = useState({ name: "", email: "", phone: "", address: "" });
   const [loading,       setLoading]       = useState(false);
 
@@ -43,7 +44,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
 
   function handleClose() {
     setStep(1); setPaymentSubStep("choice"); setPayMethod("wave_complet");
-    setAcomptePct(0.5); setCustomAcompte("");
+    setAcomptePct(0.5); setCustomAcompte(""); setPaymentConfirmed(false);
     setForm({ name: "", email: "", phone: "", address: "" });
     onClose();
   }
@@ -128,7 +129,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
 
                   {/* Paiement complet */}
                   <button
-                    onClick={() => { setPayMethod("wave_complet"); setPaymentSubStep("details"); }}
+                    onClick={() => { setPayMethod("wave_complet"); setPaymentSubStep("details"); setPaymentConfirmed(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-blue-400 text-left transition-all"
                   >
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50">
@@ -140,7 +141,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
 
                   {/* Paiement Acompte */}
                   <button
-                    onClick={() => { setPayMethod("wave_acompte"); setPaymentSubStep("details"); }}
+                    onClick={() => { setPayMethod("wave_acompte"); setPaymentSubStep("details"); setPaymentConfirmed(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-purple-400 text-left transition-all"
                   >
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-purple-50">
@@ -157,7 +158,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                   {/* Retour vers le choix du mode de paiement */}
                   <button
                     type="button"
-                    onClick={() => setPaymentSubStep("choice")}
+                    onClick={() => { setPaymentSubStep("choice"); setPaymentConfirmed(false); }}
                     className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors mb-1"
                   >
                     <ChevronLeft size={15} /> Retour
@@ -177,7 +178,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                           return (
                             <button
                               key={p.pct}
-                              onClick={() => { setAcomptePct(p.pct); setCustomAcompte(""); }}
+                              onClick={() => { setAcomptePct(p.pct); setCustomAcompte(""); setPaymentConfirmed(false); }}
                               className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
                                 active ? "bg-purple-600 text-white" : "bg-white text-purple-700 border border-purple-200"
                               }`}
@@ -193,7 +194,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                       <input
                         type="number"
                         value={customAcompte}
-                        onChange={(e) => setCustomAcompte(e.target.value)}
+                        onChange={(e) => { setCustomAcompte(e.target.value); setPaymentConfirmed(false); }}
                         placeholder={`Autre montant (min. ${minAcompte.toLocaleString("fr-FR")} F)`}
                         className="w-full px-3 py-2.5 border border-purple-200 rounded-xl text-sm focus:outline-none focus:border-purple-500 bg-white"
                       />
@@ -226,9 +227,30 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                     <p className="text-xs text-blue-400">Vous serez redirigé vers l&apos;application Wave</p>
                   </div>
 
+                  {/* Confirmation du paiement avant de poursuivre */}
+                  <label className="flex items-start gap-2.5 px-1 pt-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={paymentConfirmed}
+                      onChange={(e) => setPaymentConfirmed(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500"
+                    />
+                    <span className="text-xs text-gray-600">
+                      J&apos;ai effectué le paiement Wave de{" "}
+                      <span className="font-bold">
+                        {Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA
+                      </span>
+                    </span>
+                  </label>
+
                   <button
                     onClick={() => setStep(2)}
-                    className="w-full flex items-center justify-center gap-2 mt-4 py-3.5 bg-amber-500 text-gray-900 rounded-2xl font-bold text-sm hover:bg-amber-400 transition-colors"
+                    disabled={!paymentConfirmed}
+                    className={`w-full flex items-center justify-center gap-2 mt-2 py-3.5 rounded-2xl font-bold text-sm transition-colors ${
+                      paymentConfirmed
+                        ? "bg-amber-500 text-gray-900 hover:bg-amber-400"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    }`}
                   >
                     Suivant <ChevronRight size={16} />
                   </button>
