@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
-import { X, ChevronLeft, ChevronRight, Banknote, Smartphone, CheckCircle } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Smartphone, CheckCircle } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { ordersApi } from "@/lib/api";
 import toast from "react-hot-toast";
 
-const WAVE_PHONE = process.env.NEXT_PUBLIC_WAVE_PHONE || "+221 XX XXX XX XX";
+const WAVE_PAYMENT_LINK = "https://pay.wave.com/m/M_sn_mOWbrjN-8zHL";
 
-type PayMethod = "livraison" | "wave_complet" | "wave_acompte";
+type PayMethod = "wave_complet" | "wave_acompte";
 
 const ACOMPTE_PRESETS = [
   { label: "30 %", pct: 0.3 },
@@ -21,7 +21,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   const { items, total, clearCart } = useCartStore();
 
   const [step,          setStep]          = useState<1 | 2>(1);
-  const [payMethod,     setPayMethod]     = useState<PayMethod>("livraison");
+  const [payMethod,     setPayMethod]     = useState<PayMethod>("wave_complet");
   const [acomptePct,    setAcomptePct]    = useState(0.5);
   const [customAcompte, setCustomAcompte] = useState("");
   const [form,          setForm]          = useState({ name: "", email: "", phone: "", address: "" });
@@ -36,13 +36,12 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   const minAcompte  = Math.round(grandTotal * 0.3);
 
   function paymentLabel() {
-    if (payMethod === "livraison")    return "Paiement à la livraison";
     if (payMethod === "wave_complet") return "Wave — Paiement complet";
     return `Wave — Acompte ${acompteAmt?.toLocaleString("fr-FR")} FCFA`;
   }
 
   function handleClose() {
-    setStep(1); setPayMethod("livraison");
+    setStep(1); setPayMethod("wave_complet");
     setAcomptePct(0.5); setCustomAcompte("");
     setForm({ name: "", email: "", phone: "", address: "" });
     onClose();
@@ -124,19 +123,6 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
             <div className="space-y-2.5">
               <p className="text-sm font-semibold text-gray-700 mb-3">Comment souhaitez-vous payer ?</p>
 
-              {/* À la livraison */}
-              <button
-                onClick={() => setPayMethod("livraison")}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 text-left transition-all ${
-                  payMethod === "livraison" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-100 hover:border-gray-300"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${payMethod === "livraison" ? "bg-white/15" : "bg-gray-100"}`}>
-                  <Banknote size={17} className={payMethod === "livraison" ? "text-white" : "text-gray-500"} />
-                </div>
-                <span className="text-sm font-semibold">À la livraison</span>
-              </button>
-
               {/* Wave complet */}
               <button
                 onClick={() => setPayMethod("wave_complet")}
@@ -212,16 +198,23 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                 </div>
               )}
 
-              {/* Wave : numéro marchand */}
-              {(payMethod === "wave_complet" || payMethod === "wave_acompte") && (
-                <div className="bg-blue-50 rounded-2xl p-4 text-center">
-                  <p className="text-xs text-blue-500 mb-1">
-                    Envoyez {(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA à
-                  </p>
-                  <p className="text-xl font-black text-blue-700 tracking-widest">{WAVE_PHONE}</p>
-                  <p className="text-xs text-blue-400 mt-1">Numéro Wave — Groupe Genetics</p>
-                </div>
-              )}
+              {/* Wave : lien de paiement avec montant pré-rempli */}
+              <div className="bg-blue-50 rounded-2xl p-4 text-center space-y-2.5">
+                <p className="text-xs text-blue-500">
+                  Montant à payer : <span className="font-bold">
+                    {Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0).toLocaleString("fr-FR")} FCFA
+                  </span>
+                </p>
+                <a
+                  href={`${WAVE_PAYMENT_LINK}?amount=${Math.round(payMethod === "wave_complet" ? grandTotal : acompteAmt ?? 0)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors"
+                >
+                  <Smartphone size={16} /> Payer avec Wave
+                </a>
+                <p className="text-xs text-blue-400">Vous serez redirigé vers l&apos;application Wave</p>
+              </div>
 
               <button
                 onClick={() => setStep(2)}
