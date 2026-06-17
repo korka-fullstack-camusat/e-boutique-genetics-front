@@ -90,8 +90,9 @@ export default function AdminOrdersPage() {
     try {
       await ordersApi.sendInvoice(order.id);
       toast.success(`Facture envoyée à ${order.customer_email} ✓`);
-    } catch {
-      toast.error("Erreur lors de l'envoi de la facture");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur inconnue";
+      toast.error(`Envoi échoué : ${msg}`, { duration: 6000 });
     } finally {
       setSendingInvoice(false);
     }
