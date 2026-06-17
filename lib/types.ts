@@ -66,6 +66,7 @@ export interface Order {
   customer_address: string | null;
   payment_method: string;
   total_amount: number;
+  acompte_amount?: number | null;
   status: string;
   created_at: string;
   items: OrderItemResponse[];

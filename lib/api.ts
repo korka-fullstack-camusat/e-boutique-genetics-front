@@ -67,6 +67,8 @@ export const ordersApi = {
     request<{ message: string; order_id: number }>("/api/orders/", { method: "POST", body: JSON.stringify(data) }),
   updateStatus: (id: number, data: OrderUpdate) =>
     request<Order>(`/api/orders/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  sendInvoice: (id: number) =>
+    request<{ message: string }>(`/api/orders/${id}/send-invoice`, { method: "POST" }),
 };
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
