@@ -27,21 +27,15 @@ function fmt(d: Date) {
 export function InvoiceModal({ open, data, onClose }: Props) {
   if (!open || !data) return null;
 
-  const isAcompte   = (data.acompteAmount ?? 0) > 0;
-  const acompte     = data.acompteAmount ?? 0;
-  const solde       = data.totalAmount - acompte;
-  const dateStr     = fmt(data.orderDate);
-  const year        = data.orderDate.getFullYear();
-  const num         = String(data.orderId).padStart(3, "0");
-
-  // Numéros distincts : FA = facture solde / AC = acompte
-  const invoiceNum  = isAcompte
-    ? `AC-${year}-${num}`
-    : `FA-${year}-${num}`;
-
+  const isAcompte  = (data.acompteAmount ?? 0) > 0;
+  const acompte    = data.acompteAmount ?? 0;
+  const solde      = data.totalAmount - acompte;
+  const dateStr    = fmt(data.orderDate);
+  const year       = data.orderDate.getFullYear();
+  const num        = String(data.orderId).padStart(3, "0");
+  const invoiceNum = isAcompte ? `AC-${year}-${num}` : `FA-${year}-${num}`;
   const invoiceType = isAcompte ? "Facture d'Acompte" : "Facture";
-
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const baseUrl    = typeof window !== "undefined" ? window.location.origin : "";
 
   function handlePrint() {
     const logoUrl = `${baseUrl}/logo.jpeg`;
@@ -54,7 +48,6 @@ export function InvoiceModal({ open, data, onClose }: Props) {
         <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:600;">${(it.price * it.quantity).toLocaleString("fr-FR")} CFA</td>
       </tr>`).join("");
 
-    // Bloc financier bas de tableau — diffère selon paiement complet ou acompte
     const financialRows = isAcompte ? `
       <tr style="background:#fafafa;border-top:2px solid #ddd;">
         <td colspan="3" style="padding:10px 8px;font-size:14px;font-weight:900;">Total commande</td>
@@ -194,25 +187,36 @@ export function InvoiceModal({ open, data, onClose }: Props) {
 </body>
 </html>`;
 
-    const win = window.open("", "_blank", "width=900,height=700");
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 600);
-  }
+    // Iframe caché — évite les bloqueurs de popups
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "position:fixed;width:1px;height:1px;top:0;left:0;border:none;opacity:0;pointer-events:none;";
+    document.body.appendChild(iframe);
 
-  const total = data.totalAmount;
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) { document.body.removeChild(iframe); return; }
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+      }, 2000);
+    }, 600);
+  }
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">
 
         {/* Header */}
-        <div className="sticky top-0 bg-white px-6 pt-5 pb-4 border-b z-10 flex items-center justify-between">
+        <div className="px-6 pt-5 pb-4 border-b flex items-center justify-between">
           <div>
-            <h2 className="font-black text-gray-900 text-base">Commande confirmée ✓</h2>
-            <p className="text-xs text-gray-400 mt-0.5">{invoiceType} {invoiceNum}</p>
+            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{invoiceType}</p>
+            <h2 className="font-black text-gray-900 text-lg">{invoiceNum}</h2>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-100">
             <X size={17} />
@@ -221,64 +225,39 @@ export function InvoiceModal({ open, data, onClose }: Props) {
 
         <div className="p-6 space-y-4">
 
-          {/* Badge type */}
-          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+          {/* Badge statut */}
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
             isAcompte
               ? "bg-orange-100 text-orange-600 border border-orange-300"
               : "bg-green-100 text-green-700 border border-green-300"
           }`}>
-            {isAcompte ? "Facture d'acompte" : "Facture soldée — Paiement complet"}
-          </div>
+            {isAcompte ? "Acompte reçu" : "Paiement complet"}
+          </span>
 
-          {/* Récap */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2">
-            <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">Articles</p>
-            {data.items.map((it, i) => (
-              <div key={i} className="flex justify-between text-sm">
-                <span className="text-gray-700">{it.product_name} × {it.quantity}</span>
-                <span className="font-semibold">{(it.price * it.quantity).toLocaleString("fr-FR")} F</span>
+          {/* Résumé financier */}
+          <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
+            {isAcompte ? (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Total commande</span>
+                  <span className="font-semibold text-gray-800">{data.totalAmount.toLocaleString("fr-FR")} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Acompte reçu</span>
+                  <span className="font-semibold text-purple-600">−{acompte.toLocaleString("fr-FR")} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
+                  <span className="font-bold text-orange-600">Solde restant dû</span>
+                  <span className="font-black text-orange-600">{solde.toLocaleString("fr-FR")} FCFA</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-600">Total réglé</span>
+                <span className="font-black text-green-700 text-base">{data.totalAmount.toLocaleString("fr-FR")} FCFA</span>
               </div>
-            ))}
-            <div className="flex justify-between font-black text-sm pt-2 border-t border-amber-200">
-              <span>Total commande</span>
-              <span className="text-amber-700">{total.toLocaleString("fr-FR")} FCFA</span>
-            </div>
+            )}
           </div>
-
-          {/* Paiement detail */}
-          {isAcompte ? (
-            <div className="rounded-2xl overflow-hidden border border-gray-200">
-              <div className="flex justify-between items-center px-4 py-3 bg-purple-50">
-                <span className="text-sm font-semibold text-purple-700">Acompte reçu (Wave)</span>
-                <span className="text-sm font-bold text-purple-700">−{acompte.toLocaleString("fr-FR")} FCFA</span>
-              </div>
-              <div className="flex justify-between items-center px-4 py-3 bg-orange-50 border-t-2 border-orange-400">
-                <span className="text-sm font-black text-orange-700">Solde restant dû</span>
-                <span className="text-base font-black text-orange-700">{solde.toLocaleString("fr-FR")} FCFA</span>
-              </div>
-              <p className="text-xs text-gray-400 px-4 py-2 bg-gray-50">
-                Le solde sera réglé à la livraison.
-              </p>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center px-4 py-3 bg-green-50 border border-green-200 rounded-2xl">
-              <span className="text-sm font-bold text-green-700">Paiement intégral reçu</span>
-              <span className="text-base font-black text-green-700">{total.toLocaleString("fr-FR")} FCFA</span>
-            </div>
-          )}
-
-          {/* Client */}
-          <div className="bg-gray-50 rounded-2xl p-4 space-y-1 text-sm">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Client</p>
-            <p className="font-semibold">{data.customerName}</p>
-            <p className="text-gray-500">{data.customerEmail}</p>
-            {data.customerPhone && <p className="text-gray-500">{data.customerPhone}</p>}
-            {data.customerAddress && <p className="text-gray-500">{data.customerAddress}</p>}
-          </div>
-
-          <p className="text-xs text-gray-400 text-center">
-            Confirmation envoyée à <span className="font-semibold text-gray-600">{data.customerEmail}</span>
-          </p>
 
           {/* Bouton PDF */}
           <button
