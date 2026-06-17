@@ -4,6 +4,7 @@ import { X, ChevronLeft, ChevronRight, Smartphone, CheckCircle } from "lucide-re
 import { useCartStore } from "@/store/cartStore";
 import { ordersApi } from "@/lib/api";
 import toast from "react-hot-toast";
+import { InvoiceModal, InvoiceData } from "@/components/InvoiceModal";
 
 const WAVE_PAYMENT_LINK = "https://pay.wave.com/m/M_sn_mOWbrjN-8zHL";
 
@@ -28,6 +29,8 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [form,          setForm]          = useState({ name: "", email: "", phone: "", address: "" });
   const [loading,       setLoading]       = useState(false);
+  const [invoice,       setInvoice]       = useState<InvoiceData | null>(null);
+  const [invoiceOpen,   setInvoiceOpen]   = useState(false);
 
   if (!open) return null;
 
@@ -56,7 +59,12 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
     }
     setLoading(true);
     try {
-      await ordersApi.create({
+      const orderItems = items.map((i) => ({
+        product_id: i.product.id, product_name: i.product.name,
+        quantity: i.quantity, price: i.product.price,
+        size: i.size ?? null, color: i.color ?? null,
+      }));
+      const res = await ordersApi.create({
         customer_name:    form.name,
         customer_email:   form.email,
         customer_phone:   form.phone   || null,
@@ -66,20 +74,30 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
         delivery_fee:     0,
         acompte_amount:   acompteAmt,
         total_amount:     grandTotal,
-        items: items.map((i) => ({
-          product_id: i.product.id, product_name: i.product.name,
-          quantity: i.quantity, price: i.product.price,
-          size: i.size ?? null, color: i.color ?? null,
-        })),
+        items: orderItems,
       });
-      toast.success("Commande confirmée !");
-      clearCart(); handleClose();
+      clearCart();
+      setInvoice({
+        orderId:         res.order_id,
+        orderDate:       new Date(),
+        customerName:    form.name,
+        customerEmail:   form.email,
+        customerPhone:   form.phone   || null,
+        customerAddress: form.address || null,
+        paymentMethod:   paymentLabel(),
+        items:           orderItems.map((i) => ({ product_name: i.product_name, quantity: i.quantity, price: i.price })),
+        totalAmount:     grandTotal,
+        acompteAmount:   acompteAmt,
+      });
+      setInvoiceOpen(true);
+      onClose();
     } catch {
       toast.error("Erreur lors de la commande.");
     } finally { setLoading(false); }
   }
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60">
       <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[92vh] overflow-y-auto shadow-2xl">
 
@@ -320,5 +338,11 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
         </div>
       </div>
     </div>
+    <InvoiceModal
+      open={invoiceOpen}
+      data={invoice}
+      onClose={() => { setInvoiceOpen(false); handleClose(); }}
+    />
+    </>
   );
 }

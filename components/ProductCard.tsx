@@ -57,6 +57,13 @@ export function ProductCard({ product, onDetail }: Props) {
             </span>
           </div>
         )}
+        {product.stock > 0 && product.stock <= 5 && (
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              ⚠ Plus que {product.stock} en stock
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info */}

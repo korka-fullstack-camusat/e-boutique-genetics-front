@@ -99,9 +99,13 @@ export function ProductDetailModal({ product, onClose }: Props) {
                 {product.price.toLocaleString("fr-FR")} <span className="text-base font-bold">FCFA</span>
               </p>
               <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${
-                product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+                product.stock === 0 ? "bg-red-100 text-red-600"
+                : product.stock <= 5 ? "bg-orange-100 text-orange-600"
+                : "bg-green-100 text-green-700"
               }`}>
-                {product.stock > 0 ? "✓ En stock" : "✗ Épuisé"}
+                {product.stock === 0 ? "✗ Épuisé"
+                  : product.stock <= 5 ? `⚠ Plus que ${product.stock} en stock`
+                  : "✓ En stock"}
               </span>
             </div>
 
