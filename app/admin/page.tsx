@@ -17,10 +17,12 @@ const CATEGORIES = [
 ];
 const PAGE_SIZE = 10;
 
+const DISPO_OPTIONS = ["24h", "48h", "72h"];
+
 const EMPTY: ProductCreate = {
   name: "", description: "", price: 0, category: "",
   sous_category: "", stock: 0, images: [], sizes: [], colors: [],
-  condition: "neuf",
+  condition: "neuf", reference: "", marque: "", disponibilite: "",
 };
 
 export default function AdminProductsPage() {
@@ -36,8 +38,10 @@ export default function AdminProductsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterStock, setFilterStock] = useState("");
+  const [filterCategory,     setFilterCategory]     = useState("");
+  const [filterStock,        setFilterStock]        = useState("");
+  const [filterMarque,       setFilterMarque]       = useState("");
+  const [filterDisponibilite, setFilterDisponibilite] = useState("");
   const [page, setPage] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -63,6 +67,9 @@ export default function AdminProductsPage() {
       sous_category: p.sous_category || "", stock: p.stock,
       images: p.images || [], sizes: [], colors: [],
       condition: p.condition || "neuf",
+      reference: p.reference || "",
+      marque: p.marque || "",
+      disponibilite: p.disponibilite || "",
     });
     setModalOpen(true);
   }
@@ -114,25 +121,30 @@ export default function AdminProductsPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  const marques = useMemo(() => [...new Set(products.map((p) => p.marque).filter(Boolean) as string[])].sort(), [products]);
+
   // Filtered + paginated list
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.description || "").toLowerCase().includes(search.toLowerCase());
-      const matchCat = !filterCategory || p.category === filterCategory;
-      const matchStock = filterStock === "dispo" ? p.stock > 0 : filterStock === "epuise" ? p.stock === 0 : true;
-      return matchSearch && matchCat && matchStock;
+      const matchCat    = !filterCategory     || p.category === filterCategory;
+      const matchStock  = filterStock === "dispo" ? p.stock > 0 : filterStock === "epuise" ? p.stock === 0 : true;
+      const matchMarque = !filterMarque       || p.marque === filterMarque;
+      const matchDispo  = !filterDisponibilite || p.disponibilite === filterDisponibilite;
+      return matchSearch && matchCat && matchStock && matchMarque && matchDispo;
     });
-  }, [products, search, filterCategory, filterStock]);
+  }, [products, search, filterCategory, filterStock, filterMarque, filterDisponibilite]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   function resetFilters() {
-    setSearch(""); setFilterCategory(""); setFilterStock(""); setPage(1);
+    setSearch(""); setFilterCategory(""); setFilterStock("");
+    setFilterMarque(""); setFilterDisponibilite(""); setPage(1);
   }
 
-  const hasFilters = search || filterCategory || filterStock;
+  const hasFilters = search || filterCategory || filterStock || filterMarque || filterDisponibilite;
 
   return (
     <div>
@@ -183,6 +195,28 @@ export default function AdminProductsPage() {
           <option value="">Tout le stock</option>
           <option value="dispo">En stock</option>
           <option value="epuise">Épuisés</option>
+        </select>
+
+        {/* Filtre marque */}
+        {marques.length > 0 && (
+          <select
+            value={filterMarque}
+            onChange={(e) => { setFilterMarque(e.target.value); setPage(1); }}
+            className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+          >
+            <option value="">Toutes marques</option>
+            {marques.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+        )}
+
+        {/* Filtre disponibilité */}
+        <select
+          value={filterDisponibilite}
+          onChange={(e) => { setFilterDisponibilite(e.target.value); setPage(1); }}
+          className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
+        >
+          <option value="">Disponibilité</option>
+          {DISPO_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
 
         {hasFilters && (
@@ -372,7 +406,7 @@ export default function AdminProductsPage() {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
                   <p className="text-xs font-bold text-gray-400 uppercase mb-1">Référence</p>
-                  <p className="text-sm font-semibold text-gray-800">#{detailProduct.id}</p>
+                  <p className="text-sm font-semibold text-gray-800">{detailProduct.reference || `#${detailProduct.id}`}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
                   <p className="text-xs font-bold text-gray-400 uppercase mb-1">État</p>
@@ -380,6 +414,18 @@ export default function AdminProductsPage() {
                     {detailProduct.condition === "reconditionne" ? "Reconditionné" : "Neuf"}
                   </p>
                 </div>
+                {detailProduct.marque && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Marque</p>
+                    <p className="text-sm font-semibold text-gray-800">{detailProduct.marque}</p>
+                  </div>
+                )}
+                {detailProduct.disponibilite && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Disponibilité</p>
+                    <p className="text-sm font-semibold text-gray-800">⏱ {detailProduct.disponibilite}</p>
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
@@ -567,6 +613,51 @@ export default function AdminProductsPage() {
                   >
                     Reconditionné
                   </button>
+                </div>
+              </div>
+
+              {/* Référence + Marque */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Référence</label>
+                  <input
+                    type="text"
+                    value={form.reference || ""}
+                    onChange={(e) => set("reference", e.target.value)}
+                    placeholder="ex: REF-001"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Marque</label>
+                  <input
+                    type="text"
+                    value={form.marque || ""}
+                    onChange={(e) => set("marque", e.target.value)}
+                    placeholder="ex: Dell, HP, Cisco..."
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Disponibilité */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Disponibilité</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {DISPO_OPTIONS.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => set("disponibilite", form.disponibilite === d ? "" : d)}
+                      className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                        form.disponibilite === d
+                          ? "bg-gray-900 text-white border-gray-900"
+                          : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      {d}
+                    </button>
+                  ))}
                 </div>
               </div>
 

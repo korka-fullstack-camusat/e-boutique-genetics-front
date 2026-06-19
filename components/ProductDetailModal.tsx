@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { X, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/types";
-import { CategoryBadge, ConditionBadge } from "./ui/Badge";
+import { CategoryBadge, ConditionBadge, DisponibiliteBadge } from "./ui/Badge";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 
@@ -86,12 +86,18 @@ export function ProductDetailModal({ product, onClose }: Props) {
 
           {/* ── Infos ──────────────────────────────────────────────────── */}
           <div className="space-y-3">
-            {/* Badges catégorie */}
+            {/* Badges */}
             <div className="flex flex-wrap gap-1.5">
               <ConditionBadge condition={product.condition} />
+              {product.disponibilite && <DisponibiliteBadge disponibilite={product.disponibilite} />}
               {product.category     && <CategoryBadge label={product.category} />}
               {product.sous_category && <CategoryBadge label={product.sous_category} />}
             </div>
+
+            {/* Marque */}
+            {product.marque && (
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{product.marque}</p>
+            )}
 
             {/* Prix + stock */}
             <div className="flex items-center justify-between">
@@ -108,6 +114,19 @@ export function ProductDetailModal({ product, onClose }: Props) {
                   : "✓ En stock"}
               </span>
             </div>
+
+            {/* Référence */}
+            {product.reference && (
+              <p className="text-xs text-gray-400 font-mono">Référence : <span className="font-semibold text-gray-600">{product.reference}</span></p>
+            )}
+
+            {/* Disponibilité */}
+            {product.disponibilite && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="font-semibold">Disponibilité :</span>
+                <DisponibiliteBadge disponibilite={product.disponibilite} />
+              </div>
+            )}
 
             {/* Description */}
             {product.description && (

@@ -10,6 +10,9 @@ export interface Product {
   sizes: string[];
   colors: string[];
   condition?: string | null;
+  reference?: string | null;
+  marque?: string | null;
+  disponibilite?: string | null;
   created_at: string;
 }
 
@@ -24,6 +27,9 @@ export interface ProductCreate {
   sizes?: string[];
   colors?: string[];
   condition?: string | null;
+  reference?: string | null;
+  marque?: string | null;
+  disponibilite?: string | null;
 }
 
 export interface ProductUpdate extends Partial<ProductCreate> {}

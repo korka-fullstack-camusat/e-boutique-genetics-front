@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Product } from "@/lib/types";
-import { CategoryBadge, ConditionBadge } from "./ui/Badge";
+import { CategoryBadge, ConditionBadge, DisponibiliteBadge } from "./ui/Badge";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 
@@ -50,6 +50,11 @@ export function ProductCard({ product, onDetail }: Props) {
         <div className="absolute top-2 left-2">
           <ConditionBadge condition={product.condition} />
         </div>
+        {product.disponibilite && (
+          <div className="absolute top-2 right-2">
+            <DisponibiliteBadge disponibilite={product.disponibilite} />
+          </div>
+        )}
         {product.stock === 0 && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">
@@ -67,15 +72,29 @@ export function ProductCard({ product, onDetail }: Props) {
       </div>
 
       {/* Info */}
-      <div className="p-3 flex flex-col gap-1.5 flex-1">
+      <div className="p-3 flex flex-col gap-1 flex-1">
         <div className="flex flex-wrap gap-1">
           {product.category && <CategoryBadge label={product.category} />}
           {product.sous_category && <CategoryBadge label={product.sous_category} />}
         </div>
+
+        {/* Marque */}
+        {product.marque && (
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            {product.marque}
+          </p>
+        )}
+
         <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-gray-900">
           {product.name}
         </h3>
-        <p className="text-base font-bold text-amber-600 mt-auto">
+
+        {/* Référence */}
+        {product.reference && (
+          <p className="text-[10px] text-gray-400 font-mono">Réf : {product.reference}</p>
+        )}
+
+        <p className="text-base font-bold text-amber-600 mt-auto pt-1">
           {product.price.toLocaleString("fr-FR")} FCFA
         </p>
         <button

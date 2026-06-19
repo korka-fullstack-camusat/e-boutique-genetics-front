@@ -10,40 +10,52 @@ import { CheckoutModal } from "@/components/CheckoutModal";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-// ── Inner component (needs useSearchParams → Suspense) ─────────────────────────
 function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
   const searchParams = useSearchParams();
 
-  const [search, setSearch]         = useState(searchParams.get("search") ?? "");
-  const [category, setCategory]     = useState(searchParams.get("category") ?? "");
-  const [sousCategory, setSousCategory] = useState("");
-  const [cartOpen, setCartOpen]     = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [search,          setSearch]          = useState(searchParams.get("search") ?? "");
+  const [category,        setCategory]        = useState(searchParams.get("category") ?? "");
+  const [sousCategory,    setSousCategory]    = useState("");
+  const [filterCondition, setFilterCondition] = useState("");
+  const [filterMarque,    setFilterMarque]    = useState("");
+  const [filterDispo,     setFilterDispo]     = useState("");
+  const [cartOpen,        setCartOpen]        = useState(false);
+  const [checkoutOpen,    setCheckoutOpen]    = useState(false);
+  const [detailProduct,   setDetailProduct]   = useState<Product | null>(null);
 
-  // Catégories extraites des données déjà chargées (pas d'appel API)
-  const categories    = useMemo(() => [...new Set(initialProducts.map((p) => p.category).filter(Boolean) as string[])], [initialProducts]);
+  const categories     = useMemo(() => [...new Set(initialProducts.map((p) => p.category).filter(Boolean) as string[])], [initialProducts]);
   const sousCategories = useMemo(() => [...new Set(initialProducts.map((p) => p.sous_category).filter(Boolean) as string[])], [initialProducts]);
+  const marques        = useMemo(() => [...new Set(initialProducts.map((p) => p.marque).filter(Boolean) as string[])].sort(), [initialProducts]);
+  const dispos         = useMemo(() => {
+    const order = ["24h", "48h", "72h"];
+    return order.filter((d) => initialProducts.some((p) => p.disponibilite === d));
+  }, [initialProducts]);
 
-  // Filtrage 100% local — instantané, zéro appel réseau
   const products = useMemo(() => {
     const q = search.toLowerCase().trim();
     return initialProducts
       .filter((p) => {
         const matchSearch   = !q || p.name.toLowerCase().includes(q) || (p.description || "").toLowerCase().includes(q);
-        const matchCat      = !category     || p.category === category;
-        const matchSousCat  = !sousCategory || p.sous_category === sousCategory;
-        return matchSearch && matchCat && matchSousCat;
+        const matchCat      = !category       || p.category === category;
+        const matchSousCat  = !sousCategory   || p.sous_category === sousCategory;
+        const matchCondition = !filterCondition || p.condition === filterCondition;
+        const matchMarque   = !filterMarque   || p.marque === filterMarque;
+        const matchDispo    = !filterDispo    || p.disponibilite === filterDispo;
+        return matchSearch && matchCat && matchSousCat && matchCondition && matchMarque && matchDispo;
       })
       .sort((a, b) => a.name.localeCompare(b.name, "fr"));
-  }, [initialProducts, search, category, sousCategory]);
+  }, [initialProducts, search, category, sousCategory, filterCondition, filterMarque, filterDispo]);
 
-  function reset() { setSearch(""); setCategory(""); setSousCategory(""); }
+  function reset() {
+    setSearch(""); setCategory(""); setSousCategory("");
+    setFilterCondition(""); setFilterMarque(""); setFilterDispo("");
+  }
 
-  const hasFilters = search || category || sousCategory;
+  const hasFilters = search || category || sousCategory || filterCondition || filterMarque || filterDispo;
 
   const filters = (
     <>
+      {/* Catégorie */}
       <select
         value={category}
         onChange={(e) => { setCategory(e.target.value); setSousCategory(""); }}
@@ -53,6 +65,7 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
         {categories.map((c) => <option key={c} value={c} className="text-gray-900">{c}</option>)}
       </select>
 
+      {/* Sous-catégorie */}
       <select
         value={sousCategory}
         onChange={(e) => setSousCategory(e.target.value)}
@@ -61,6 +74,41 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
         <option value="" className="text-gray-900">Toutes sous-catégories</option>
         {sousCategories.map((s) => <option key={s} value={s} className="text-gray-900">{s}</option>)}
       </select>
+
+      {/* État */}
+      <select
+        value={filterCondition}
+        onChange={(e) => setFilterCondition(e.target.value)}
+        className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white focus:outline-none focus:border-amber-400 cursor-pointer flex-shrink-0"
+      >
+        <option value="" className="text-gray-900">Neuf &amp; Reconditionné</option>
+        <option value="neuf" className="text-gray-900">Neuf</option>
+        <option value="reconditionne" className="text-gray-900">Reconditionné</option>
+      </select>
+
+      {/* Marque */}
+      {marques.length > 0 && (
+        <select
+          value={filterMarque}
+          onChange={(e) => setFilterMarque(e.target.value)}
+          className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white focus:outline-none focus:border-amber-400 cursor-pointer flex-shrink-0"
+        >
+          <option value="" className="text-gray-900">Toutes marques</option>
+          {marques.map((m) => <option key={m} value={m} className="text-gray-900">{m}</option>)}
+        </select>
+      )}
+
+      {/* Disponibilité */}
+      {dispos.length > 0 && (
+        <select
+          value={filterDispo}
+          onChange={(e) => setFilterDispo(e.target.value)}
+          className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white focus:outline-none focus:border-amber-400 cursor-pointer flex-shrink-0"
+        >
+          <option value="" className="text-gray-900">Disponibilité</option>
+          {dispos.map((d) => <option key={d} value={d} className="text-gray-900">Livraison {d}</option>)}
+        </select>
+      )}
 
       {hasFilters && (
         <button
@@ -128,7 +176,6 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
   );
 }
 
-// ── Skeleton affiché pendant l'hydratation (rare) ─────────────────────────────
 function BoutiqueSkeleton() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -148,7 +195,6 @@ function BoutiqueSkeleton() {
   );
 }
 
-// ── Export public ─────────────────────────────────────────────────────────────
 export function BoutiqueContent({ initialProducts }: { initialProducts: Product[] }) {
   return (
     <Suspense fallback={<BoutiqueSkeleton />}>
