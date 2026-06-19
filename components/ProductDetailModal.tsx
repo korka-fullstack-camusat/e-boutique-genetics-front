@@ -120,10 +120,10 @@ export function ProductDetailModal({ product, onClose }: Props) {
               <p className="text-xs text-gray-400 font-mono">Référence : <span className="font-semibold text-gray-600">{product.reference}</span></p>
             )}
 
-            {/* Disponibilité */}
+            {/* Délai de livraison */}
             {product.disponibilite && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-semibold">Disponibilité :</span>
+                <span className="font-semibold">Délai de livraison :</span>
                 <DisponibiliteBadge disponibilite={product.disponibilite} />
               </div>
             )}

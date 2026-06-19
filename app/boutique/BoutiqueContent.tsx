@@ -98,14 +98,14 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
         </select>
       )}
 
-      {/* Disponibilité */}
+      {/* Délai de livraison */}
       {dispos.length > 0 && (
         <select
           value={filterDispo}
           onChange={(e) => setFilterDispo(e.target.value)}
           className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white focus:outline-none focus:border-amber-400 cursor-pointer flex-shrink-0"
         >
-          <option value="" className="text-gray-900">Disponibilité</option>
+          <option value="" className="text-gray-900">Délai de livraison</option>
           {dispos.map((d) => <option key={d} value={d} className="text-gray-900">Livraison {d}</option>)}
         </select>
       )}

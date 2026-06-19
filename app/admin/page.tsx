@@ -209,13 +209,13 @@ export default function AdminProductsPage() {
           </select>
         )}
 
-        {/* Filtre disponibilité */}
+        {/* Filtre délai de livraison */}
         <select
           value={filterDisponibilite}
           onChange={(e) => { setFilterDisponibilite(e.target.value); setPage(1); }}
           className="text-sm border border-gray-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer"
         >
-          <option value="">Disponibilité</option>
+          <option value="">Délai de livraison</option>
           {DISPO_OPTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
 
@@ -422,7 +422,7 @@ export default function AdminProductsPage() {
                 )}
                 {detailProduct.disponibilite && (
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Disponibilité</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Délai de livraison</p>
                     <p className="text-sm font-semibold text-gray-800">⏱ {detailProduct.disponibilite}</p>
                   </div>
                 )}
@@ -640,9 +640,9 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Disponibilité */}
+              {/* Délai de livraison */}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Disponibilité</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Délai de livraison</label>
                 <div className="grid grid-cols-3 gap-3">
                   {DISPO_OPTIONS.map((d) => (
                     <button
