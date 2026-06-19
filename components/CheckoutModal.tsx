@@ -184,12 +184,22 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                 ))}
               </div>
 
-              <button
-                onClick={handleNextToPayment}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-gray-700 transition-colors"
-              >
-                Suivant <ChevronRight size={16} />
-              </button>
+              {(() => {
+                const canProceed = form.name.trim() !== "" && form.email.trim() !== "" && form.phone.trim() !== "";
+                return (
+                  <button
+                    onClick={handleNextToPayment}
+                    disabled={!canProceed}
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-colors ${
+                      canProceed
+                        ? "bg-gray-900 text-white hover:bg-gray-700"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Suivant <ChevronRight size={16} />
+                  </button>
+                );
+              })()}
             </div>
           )}
 
