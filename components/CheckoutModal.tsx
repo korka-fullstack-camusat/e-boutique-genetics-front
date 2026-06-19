@@ -16,29 +16,29 @@ const ACOMPTE_PRESETS = [
   { label: "70 %", pct: 0.7 },
 ];
 
-const STEPS = ["Paiement", "Infos"];
+const STEPS = ["Infos", "Paiement"];
 
 export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { items, total, clearCart } = useCartStore();
 
-  const [step,          setStep]          = useState<1 | 2>(1);
-  const [paymentSubStep, setPaymentSubStep] = useState<"choice" | "details">("choice");
-  const [payMethod,     setPayMethod]     = useState<PayMethod>("wave_complet");
-  const [acomptePct,    setAcomptePct]    = useState(0.5);
-  const [customAcompte, setCustomAcompte] = useState("");
+  const [step,            setStep]            = useState<1 | 2>(1);
+  const [paymentSubStep,  setPaymentSubStep]  = useState<"choice" | "details">("choice");
+  const [payMethod,       setPayMethod]       = useState<PayMethod>("wave_complet");
+  const [acomptePct,      setAcomptePct]      = useState(0.5);
+  const [customAcompte,   setCustomAcompte]   = useState("");
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-  const [form,          setForm]          = useState({ name: "", email: "", phone: "", address: "" });
-  const [loading,       setLoading]       = useState(false);
-  const [invoice,       setInvoice]       = useState<InvoiceData | null>(null);
-  const [invoiceOpen,   setInvoiceOpen]   = useState(false);
+  const [form,            setForm]            = useState({ name: "", email: "", phone: "", address: "" });
+  const [loading,         setLoading]         = useState(false);
+  const [invoice,         setInvoice]         = useState<InvoiceData | null>(null);
+  const [invoiceOpen,     setInvoiceOpen]     = useState(false);
 
   if (!open) return null;
 
-  const grandTotal  = total();
-  const acompteAmt  = payMethod === "wave_acompte"
+  const grandTotal = total();
+  const acompteAmt = payMethod === "wave_acompte"
     ? (customAcompte ? parseFloat(customAcompte) || 0 : Math.round(grandTotal * acomptePct))
     : null;
-  const minAcompte  = Math.round(grandTotal * 0.3);
+  const minAcompte = Math.round(grandTotal * 0.3);
 
   function paymentLabel() {
     if (payMethod === "wave_complet") return "Wave — Paiement complet";
@@ -52,8 +52,15 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
     onClose();
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleNextToPayment() {
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
+      toast.error("Veuillez remplir les champs obligatoires (Nom, Email, Téléphone)");
+      return;
+    }
+    setStep(2);
+  }
+
+  async function handleSubmit() {
     if (payMethod === "wave_acompte" && acompteAmt && acompteAmt < minAcompte) {
       toast.error(`Acompte minimum : ${minAcompte.toLocaleString("fr-FR")} FCFA`); return;
     }
@@ -138,14 +145,69 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
 
         <div className="p-5">
 
-          {/* ── ÉTAPE 1 : Paiement ──────────────────────────────────────── */}
+          {/* ── ÉTAPE 1 : Informations ──────────────────────────────────── */}
           {step === 1 && (
+            <div className="space-y-4">
+
+              {/* Mini récap panier */}
+              <div className="bg-gray-50 rounded-2xl p-4 space-y-1.5">
+                {items.map((item, i) => (
+                  <div key={i} className="flex justify-between text-sm">
+                    <span className="text-gray-600">{item.product.name} × {item.quantity}</span>
+                    <span className="font-semibold">{(item.product.price * item.quantity).toLocaleString("fr-FR")} F</span>
+                  </div>
+                ))}
+                <div className="flex justify-between font-black pt-2 border-t border-gray-200">
+                  <span>Total</span>
+                  <span className="text-amber-600">{grandTotal.toLocaleString("fr-FR")} FCFA</span>
+                </div>
+              </div>
+
+              {/* Champs */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { key: "name",    label: "Nom *",       type: "text",  placeholder: "Votre nom"         },
+                  { key: "email",   label: "Email *",     type: "email", placeholder: "email@exemple.com" },
+                  { key: "phone",   label: "Téléphone *", type: "tel",   placeholder: "+221 77 000 00 00"  },
+                  { key: "address", label: "Adresse",     type: "text",  placeholder: "Dakar, Plateau..."  },
+                ].map(({ key, label, type, placeholder }) => (
+                  <div key={key}>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
+                    <input
+                      type={type}
+                      value={form[key as keyof typeof form]}
+                      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={handleNextToPayment}
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-gray-700 transition-colors"
+              >
+                Suivant <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* ── ÉTAPE 2 : Paiement ──────────────────────────────────────── */}
+          {step === 2 && (
             <div className="space-y-2.5">
               {paymentSubStep === "choice" ? (
                 <>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors mb-1"
+                  >
+                    <ChevronLeft size={15} /> Retour
+                  </button>
+
                   <p className="text-sm font-semibold text-gray-700 mb-3">Comment souhaitez-vous payer ?</p>
 
-                  {/* Paiement complet */}
                   <button
                     onClick={() => { setPayMethod("wave_complet"); setPaymentSubStep("details"); setPaymentConfirmed(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-blue-400 text-left transition-all"
@@ -157,7 +219,6 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                     <span className="text-sm font-bold text-blue-600">{grandTotal.toLocaleString("fr-FR")} F</span>
                   </button>
 
-                  {/* Paiement Acompte */}
                   <button
                     onClick={() => { setPayMethod("wave_acompte"); setPaymentSubStep("details"); setPaymentConfirmed(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-gray-100 hover:border-purple-400 text-left transition-all"
@@ -173,7 +234,6 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                 </>
               ) : (
                 <>
-                  {/* Retour vers le choix du mode de paiement */}
                   <button
                     type="button"
                     onClick={() => { setPaymentSubStep("choice"); setPaymentConfirmed(false); }}
@@ -227,7 +287,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                     </div>
                   )}
 
-                  {/* Wave : lien de paiement avec montant pré-rempli */}
+                  {/* Wave : lien de paiement */}
                   <div className="bg-blue-50 rounded-2xl p-4 text-center space-y-2.5">
                     <p className="text-xs text-blue-500">
                       Montant à payer : <span className="font-bold">
@@ -245,7 +305,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                     <p className="text-xs text-blue-400">Vous serez redirigé vers l&apos;application Wave</p>
                   </div>
 
-                  {/* Confirmation du paiement avant de poursuivre */}
+                  {/* Confirmation */}
                   <label className="flex items-start gap-2.5 px-1 pt-1 cursor-pointer">
                     <input
                       type="checkbox"
@@ -262,77 +322,19 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
                   </label>
 
                   <button
-                    onClick={() => setStep(2)}
-                    disabled={!paymentConfirmed}
-                    className={`w-full flex items-center justify-center gap-2 mt-2 py-3.5 rounded-2xl font-bold text-sm transition-colors ${
-                      paymentConfirmed
+                    onClick={handleSubmit}
+                    disabled={!paymentConfirmed || loading}
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-colors ${
+                      paymentConfirmed && !loading
                         ? "bg-amber-500 text-gray-900 hover:bg-amber-400"
                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    Suivant <ChevronRight size={16} />
+                    {loading ? "Validation en cours..." : "Valider la commande"}
                   </button>
                 </>
               )}
             </div>
-          )}
-
-          {/* ── ÉTAPE 2 : Informations ──────────────────────────────────── */}
-          {step === 2 && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-
-              {/* Mini récap */}
-              <div className="bg-gray-50 rounded-2xl p-4 space-y-1.5">
-                {items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.product.name} × {item.quantity}</span>
-                    <span className="font-semibold">{(item.product.price * item.quantity).toLocaleString("fr-FR")} F</span>
-                  </div>
-                ))}
-                <div className="flex justify-between font-black pt-2 border-t border-gray-200">
-                  <span>Total</span>
-                  <span className="text-amber-600">{grandTotal.toLocaleString("fr-FR")} FCFA</span>
-                </div>
-                {acompteAmt && (
-                  <div className="flex justify-between text-sm text-green-600 font-semibold">
-                    <span>Acompte Wave</span>
-                    <span>-{acompteAmt.toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Champs */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { key: "name",    label: "Nom *",       type: "text",  placeholder: "Votre nom",          required: true  },
-                  { key: "email",   label: "Email *",     type: "email", placeholder: "email@exemple.com",  required: true  },
-                  { key: "phone",   label: "Téléphone *", type: "tel",   placeholder: "+221 77 000 00 00",   required: true  },
-                  { key: "address", label: "Adresse",     type: "text",  placeholder: "Dakar, Plateau...",   required: false },
-                ].map(({ key, label, type, placeholder, required }) => (
-                  <div key={key}>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">{label}</label>
-                    <input
-                      type={type} required={required}
-                      value={form[key as keyof typeof form]}
-                      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                      placeholder={placeholder}
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => setStep(1)}
-                  className="flex items-center gap-1 px-4 py-3 border border-gray-200 rounded-2xl text-sm font-semibold hover:border-gray-400 transition-colors">
-                  <ChevronLeft size={15} />
-                </button>
-                <button type="submit" disabled={loading}
-                  className="flex-1 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-gray-700 transition-colors disabled:opacity-60">
-                  {loading ? "Envoi..." : "Confirmer la commande →"}
-                </button>
-              </div>
-            </form>
           )}
 
         </div>
