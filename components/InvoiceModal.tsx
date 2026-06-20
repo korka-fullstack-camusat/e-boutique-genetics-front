@@ -39,6 +39,7 @@ export function InvoiceModal({ open, data, onClose }: Props) {
 
   function handlePrint() {
     const logoUrl = `${baseUrl}/logo.jpeg`;
+    const stampUrl = `${baseUrl}/cachet.png`;
 
     const rows = data!.items.map((it) => `
       <tr>
@@ -104,8 +105,7 @@ export function InvoiceModal({ open, data, onClose }: Props) {
     .conditions { font-size: 12px; color: #444; line-height: 1.8; max-width: 55%; }
     .conditions strong { font-size: 12px; color: #111; }
     .signature-block { text-align: center; }
-    .stamp { border: 1px solid #999; padding: 8px 14px; font-size: 10px; line-height: 1.6; color: #555; display: inline-block; }
-    .sig-label { font-size: 12px; color: #555; margin-top: 6px; }
+    .stamp img { height: 90px; object-fit: contain; }
     .page-footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 12px; text-align: center; font-size: 11px; color: #777; line-height: 1.8; }
     .page-footer a { color: #c9a227; text-decoration: none; }
     @media print {
@@ -169,13 +169,8 @@ export function InvoiceModal({ open, data, onClose }: Props) {
     </div>
     <div class="signature-block">
       <div class="stamp">
-        Global Energie and IT<br/>
-        RC : SN.DKR.2025.B.22955<br/>
-        NINEA : 012204559<br/>
-        Adresse : Zac Mbao, Rond-Point SIPRES<br/>
-        Tél : +221 78 879 00 00
+        <img src="${stampUrl}" alt="Cachet" />
       </div>
-      <div class="sig-label">Signataire autorisé</div>
     </div>
   </div>
 
