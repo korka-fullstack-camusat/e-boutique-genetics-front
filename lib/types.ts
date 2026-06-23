@@ -73,6 +73,7 @@ export interface Order {
   payment_method: string;
   total_amount: number;
   acompte_amount?: number | null;
+  invoice_number?: number | null;
   status: string;
   created_at: string;
   items: OrderItemResponse[];

@@ -64,7 +64,7 @@ export const ordersApi = {
   list: () => request<Order[]>("/api/orders/"),
   get: (id: number) => request<Order>(`/api/orders/${id}`),
   create: (data: OrderCreate) =>
-    request<{ message: string; order_id: number }>("/api/orders/", { method: "POST", body: JSON.stringify(data) }),
+    request<{ message: string; order_id: number; invoice_number: number | null }>("/api/orders/", { method: "POST", body: JSON.stringify(data) }),
   updateStatus: (id: number, data: OrderUpdate) =>
     request<Order>(`/api/orders/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   sendInvoice: (id: number) =>

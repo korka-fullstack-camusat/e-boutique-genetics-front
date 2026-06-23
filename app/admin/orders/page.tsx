@@ -67,6 +67,7 @@ export default function AdminOrdersPage() {
   function openInvoice(order: Order) {
     setAdminInvoice({
       orderId:         order.id,
+      invoiceNumber:   order.invoice_number,
       orderDate:       new Date(order.created_at),
       customerName:    order.customer_name,
       customerEmail:   order.customer_email,

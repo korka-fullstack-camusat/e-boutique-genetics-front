@@ -3,6 +3,7 @@ import { X, Download } from "lucide-react";
 
 export interface InvoiceData {
   orderId: number;
+  invoiceNumber?: number | null;
   orderDate: Date;
   customerName: string;
   customerEmail: string;
@@ -32,7 +33,7 @@ export function InvoiceModal({ open, data, onClose }: Props) {
   const solde      = data.totalAmount - acompte;
   const dateStr    = fmt(data.orderDate);
   const year       = data.orderDate.getFullYear();
-  const num        = String(data.orderId).padStart(3, "0");
+  const num        = String(data.invoiceNumber ?? data.orderId).padStart(2, "0");
   const invoiceNum = isAcompte ? `AC-${year}-${num}` : `FA-${year}-${num}`;
   const invoiceType = isAcompte ? "Facture d'Acompte" : "Facture";
   const baseUrl    = typeof window !== "undefined" ? window.location.origin : "";

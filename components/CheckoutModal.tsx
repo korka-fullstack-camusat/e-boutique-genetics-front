@@ -86,6 +86,7 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
       clearCart();
       setInvoice({
         orderId:         res.order_id,
+        invoiceNumber:   res.invoice_number,
         orderDate:       new Date(),
         customerName:    form.name,
         customerEmail:   form.email,
