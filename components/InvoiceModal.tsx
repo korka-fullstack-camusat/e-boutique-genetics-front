@@ -165,7 +165,6 @@ export function InvoiceModal({ open, data, onClose }: Props) {
   </div>
 
   <div class="page-footer">
-    Pour plus d'informations contacter l'email suivant : <a href="mailto:admin@groupegenetics.com">admin@groupegenetics.com</a><br/>
     Site web : <a href="https://www.groupegenetics.com">www.groupegenetics.com</a>
     <br/><br/>Page 1 / 1
   </div>
