@@ -67,10 +67,6 @@ export function InvoiceModal({ open, data, onClose }: Props) {
         <td style="padding:12px 8px;text-align:right;font-size:16px;font-weight:900;color:#c9a227;">${data!.totalAmount.toLocaleString("fr-FR")} CFA</td>
       </tr>`;
 
-    const conditionPaiement = isAcompte
-      ? `Acompte de ${acompte.toLocaleString("fr-FR")} CFA reçu. Solde de ${solde.toLocaleString("fr-FR")} CFA dû à la livraison.`
-      : `100% à la commande. Paiement intégral reçu.`;
-
     const badgeHtml = isAcompte
       ? `<div style="display:inline-block;background:#fff7ed;border:2px solid #f97316;color:#ea580c;font-weight:900;font-size:12px;padding:3px 12px;border-radius:20px;letter-spacing:1px;margin-bottom:8px;">ACOMPTE</div>`
       : `<div style="display:inline-block;background:#f0fdf4;border:2px solid #16a34a;color:#15803d;font-weight:900;font-size:12px;padding:3px 12px;border-radius:20px;letter-spacing:1px;margin-bottom:8px;">SOLDÉ</div>`;
@@ -101,9 +97,7 @@ export function InvoiceModal({ open, data, onClose }: Props) {
     thead th:nth-child(3) { text-align: center; }
     .section-header td { padding: 10px 8px; font-weight: 900; font-size: 13px; background: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
     tbody tr { border-bottom: 1px solid #f0f0f0; }
-    .footer-info { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; }
-    .conditions { font-size: 12px; color: #444; line-height: 1.8; max-width: 55%; }
-    .conditions strong { font-size: 12px; color: #111; }
+    .footer-info { display: flex; align-items: flex-end; margin-top: 12px; }
     .signature-block { text-align: center; }
     .stamp img { height: 90px; object-fit: contain; }
     .page-footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 12px; text-align: center; font-size: 11px; color: #777; line-height: 1.8; }
@@ -163,10 +157,6 @@ export function InvoiceModal({ open, data, onClose }: Props) {
   </table>
 
   <div class="footer-info">
-    <div class="conditions">
-      Communication de paiement : <strong>${invoiceNum}</strong><br/>
-      <span style="text-decoration:underline">Condition de paiement</span> : ${conditionPaiement}
-    </div>
     <div class="signature-block">
       <div class="stamp">
         <img src="${stampUrl}" alt="Cachet" />
