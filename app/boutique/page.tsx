@@ -7,7 +7,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 async function fetchProducts(): Promise<Product[]> {
   try {
     const res = await fetch(`${BASE}/api/products/`, {
-      next: { revalidate: 60 }, // ISR : servi depuis le cache Vercel, ultra-rapide
+      cache: "no-store",
     });
     if (!res.ok) return [];
     return res.json();

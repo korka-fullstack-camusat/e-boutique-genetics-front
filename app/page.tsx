@@ -7,7 +7,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 async function fetchLatestProducts(): Promise<Product[]> {
   try {
     const res = await fetch(`${BASE}/api/products/`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
     if (!res.ok) return [];
     const all: Product[] = await res.json();
