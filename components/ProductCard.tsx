@@ -39,7 +39,7 @@ export function ProductCard({ product, onDetail }: Props) {
             src={img}
             alt={product.name}
             className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
+            loading="eager"
             onError={() => setImgError(true)}
           />
         ) : (

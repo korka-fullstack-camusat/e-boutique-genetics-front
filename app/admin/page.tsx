@@ -44,13 +44,14 @@ export default function AdminProductsPage() {
   const [filterDisponibilite, setFilterDisponibilite] = useState("");
   const [page, setPage] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imagePreviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { loadProducts(); }, []);
 
-  async function loadProducts() {
-    setLoading(true);
+  async function loadProducts(showLoading = true) {
+    if (showLoading) setLoading(true);
     try { setProducts(await productsApi.list()); }
-    finally { setLoading(false); }
+    finally { if (showLoading) setLoading(false); }
   }
 
   function openAdd() {
@@ -79,6 +80,7 @@ export default function AdminProductsPage() {
     try {
       const urls = await uploadApi.images(Array.from(files));
       setForm((f) => ({ ...f, images: [...(f.images || []), ...urls] }));
+      setTimeout(() => imagePreviewRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 100);
     } catch { toast.error("Erreur upload"); }
     finally { setUploading(false); }
   }
@@ -90,29 +92,33 @@ export default function AdminProductsPage() {
     try {
       if (editing) {
         await productsApi.update(editing.id, { ...form } as ProductUpdate);
+        // mise à jour instantanée dans l'état local
+        setProducts((prev) => prev.map((p) => p.id === editing.id ? { ...p, ...form } : p));
         toast.success("Produit mis à jour");
       } else {
         await productsApi.create(form);
         toast.success("Produit créé");
+        loadProducts(false); // rechargement silencieux pour obtenir l'ID du nouveau produit
       }
       setModalOpen(false);
-      loadProducts();
-      revalidateApi.refresh(); // reflète immédiatement le changement côté client
+      revalidateApi.refresh();
     } catch { toast.error("Erreur lors de la sauvegarde"); }
     finally { setSaving(false); }
   }
 
   async function confirmDelete() {
     if (!deleteTarget) return;
+    const target = deleteTarget;
     setDeleting(true);
     try {
-      await productsApi.delete(deleteTarget.id);
+      await productsApi.delete(target.id);
+      // suppression instantanée dans l'état local
+      setProducts((prev) => prev.filter((p) => p.id !== target.id));
       toast.success("Produit supprimé");
       setDeleteTarget(null);
       setManagedProduct(null);
       setDetailProduct(null);
-      loadProducts();
-      revalidateApi.refresh(); // reflète immédiatement le changement côté client
+      revalidateApi.refresh();
     } catch { toast.error("Erreur suppression"); }
     finally { setDeleting(false); }
   }
@@ -677,40 +683,68 @@ export default function AdminProductsPage() {
               {/* Images */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">
-                  Photos du produit <span className="font-normal text-gray-400 normal-case">(plusieurs possibles)</span>
+                  Photos du produit{" "}
+                  {(form.images || []).length > 0 && (
+                    <span className="ml-1 normal-case font-semibold text-amber-600">
+                      {(form.images || []).length} photo{(form.images || []).length > 1 ? "s" : ""}
+                    </span>
+                  )}
                 </label>
+
+                {/* Zone de drop */}
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  className="w-full py-4 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-2 text-sm text-gray-400 hover:border-amber-400 hover:text-amber-500 transition-colors"
+                  className={`w-full py-5 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 text-sm transition-colors ${
+                    uploading
+                      ? "border-amber-300 bg-amber-50 text-amber-600 cursor-wait"
+                      : "border-gray-200 text-gray-400 hover:border-amber-400 hover:text-amber-500 hover:bg-amber-50"
+                  }`}
                 >
-                  <Upload size={16} />
-                  {uploading ? "Upload en cours..." : "Cliquer pour ajouter des photos"}
+                  {uploading ? (
+                    <>
+                      <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="font-medium">Upload en cours...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={20} />
+                      <span>Cliquer pour ajouter des photos</span>
+                      <span className="text-xs text-gray-300">PNG, JPG, WEBP — plusieurs fichiers acceptés</span>
+                    </>
+                  )}
                 </button>
                 <input
                   ref={fileRef} type="file" multiple accept="image/*" className="hidden"
                   onChange={(e) => e.target.files && handleUpload(e.target.files)}
                 />
+
+                {/* Prévisualisation */}
                 {(form.images || []).length > 0 && (
-                  <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {(form.images || []).map((img, i) => (
-                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group">
-                        <img src={img} alt={`photo-${i + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => setForm((f) => ({ ...f, images: (f.images || []).filter((_, j) => j !== i) }))}
-                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                        >
-                          <X size={16} className="text-white" />
-                        </button>
-                        {i === 0 && (
-                          <span className="absolute bottom-0 left-0 right-0 text-[9px] font-bold text-center bg-amber-500 text-white py-0.5">
-                            Principale
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                  <div ref={imagePreviewRef} className="mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">
+                      Aperçu — passer la souris sur une photo pour la supprimer
+                    </p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {(form.images || []).map((img, i) => (
+                        <div key={i} className="relative aspect-square rounded-lg overflow-hidden border-2 border-white shadow group">
+                          <img src={img} alt={`photo-${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, images: (f.images || []).filter((_, j) => j !== i) }))}
+                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity shadow"
+                          >
+                            <X size={12} className="text-white" />
+                          </button>
+                          {i === 0 && (
+                            <span className="absolute bottom-0 left-0 right-0 text-[9px] font-bold text-center bg-amber-500 text-white py-0.5">
+                              Principale
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
