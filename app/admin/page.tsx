@@ -81,8 +81,11 @@ export default function AdminProductsPage() {
       const urls = await uploadApi.images(Array.from(files));
       setForm((f) => ({ ...f, images: [...(f.images || []), ...urls] }));
       setTimeout(() => imagePreviewRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 100);
-    } catch { toast.error("Erreur upload"); }
-    finally { setUploading(false); }
+    } catch (err) { toast.error(err instanceof Error && err.message ? err.message : "Erreur upload"); }
+    finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   }
 
   async function handleSave(e: React.FormEvent) {

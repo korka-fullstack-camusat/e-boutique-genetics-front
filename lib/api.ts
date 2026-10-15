@@ -81,14 +81,71 @@ export const authApi = {
 };
 
 // ── Upload ────────────────────────────────────────────────────────────────────
+const UPLOAD_MAX_DIM = 1600;      // px, côté le plus long
+const UPLOAD_QUALITY = 0.82;
+const UPLOAD_TIMEOUT_MS = 120_000;
+
+function canvasToBlob(canvas: HTMLCanvasElement, type: string): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, type, UPLOAD_QUALITY));
+}
+
+/**
+ * Redimensionne et compresse une photo dans le navigateur avant l'envoi
+ * (une photo de téléphone de 6 Mo passe à quelques centaines de Ko).
+ * En cas d'échec, ou si le résultat n'est pas plus léger, on garde l'original.
+ */
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/gif") return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, UPLOAD_MAX_DIM / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+    // WebP si le navigateur sait l'encoder, sinon JPEG (fond blanc pour la transparence)
+    let blob = await canvasToBlob(canvas, "image/webp");
+    if (!blob || blob.type !== "image/webp") {
+      ctx.globalCompositeOperation = "destination-over";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      blob = await canvasToBlob(canvas, "image/jpeg");
+    }
+    bitmap.close();
+    if (!blob || blob.size >= file.size) return file;
+
+    const ext = blob.type === "image/webp" ? ".webp" : ".jpeg";
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ext, { type: blob.type });
+  } catch {
+    return file;
+  }
+}
+
 export const uploadApi = {
   images: async (files: File[]): Promise<string[]> => {
+    const compressed = await Promise.all(files.map(compressImage));
     const form = new FormData();
-    files.forEach((f) => form.append("files", f));
-    const res = await fetch(BASE + "/api/upload/", { method: "POST", body: form });
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    return data.images as string[];
+    compressed.forEach((f) => form.append("files", f));
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+    try {
+      const res = await fetch(BASE + "/api/upload/", { method: "POST", body: form, signal: controller.signal });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.detail || `Erreur upload (${res.status})`);
+      }
+      const data = await res.json();
+      return data.images as string[];
+    } catch (err) {
+      if (controller.signal.aborted) throw new Error("L'envoi a pris trop de temps, vérifiez votre connexion");
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
   },
 };
 
