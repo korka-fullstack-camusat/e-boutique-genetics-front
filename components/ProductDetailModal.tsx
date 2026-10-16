@@ -61,6 +61,9 @@ export function ProductDetailModal({ product, onClose }: Props) {
               </div>
             )}
           </div>
+          {images.length > 0 && !imgError && (
+            <p className="-mt-3 text-center text-[11px] text-gray-400">Photo non contractuelle</p>
+          )}
 
           {/* ── Miniatures ─────────────────────────────────────────────── */}
           {images.length > 1 && (
