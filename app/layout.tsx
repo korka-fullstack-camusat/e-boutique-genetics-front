@@ -4,15 +4,22 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { AudioPlayer } from "@/components/AudioPlayer";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.genetics-market.com"),
+  metadataBase: new URL("https://genetics-market.com"),
   title: "E-Boutique — Groupe Genetics",
   description: "Découvrez la boutique de Groupe Genetics",
   openGraph: {
     title: "E-Boutique — Groupe Genetics",
     description: "Découvrez la boutique de Groupe Genetics",
-    url: "https://www.genetics-market.com",
+    url: "https://genetics-market.com",
     siteName: "E-Boutique — Groupe Genetics",
-    images: [{ url: "/logo.jpeg", width: 1080, height: 1080 }],
+    // Image carrée : affichée en vignette à côté du lien (WhatsApp, Messenger, LinkedIn…)
+    images: [{
+      url: "/og-image.jpg",
+      width: 1200,
+      height: 1200,
+      type: "image/jpeg",
+      alt: "Logo Genetics — Transform your business by the digital",
+    }],
     locale: "fr_FR",
     type: "website",
   },
@@ -20,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "E-Boutique — Groupe Genetics",
     description: "Découvrez la boutique de Groupe Genetics",
-    images: ["/logo.jpeg"],
+    images: ["/og-image.jpg"],
   },
 };
 
