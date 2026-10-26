@@ -59,9 +59,9 @@ export function HomeContent({ initialProducts, initialPacks }: Props) {
             </button>
             <button
               onClick={() => setPartnerOpen(true)}
-              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-amber-400 rounded-full font-bold text-sm hover:text-amber-300 transition-colors"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-gray-900 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors"
             >
-              <Handshake size={16} /> Devenir partenaire
+              <Handshake size={16} className="text-amber-500" /> Devenir partenaire
             </button>
           </div>
         </div>

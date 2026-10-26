@@ -14,10 +14,11 @@ interface Props {
   onCartOpen?: () => void;
   hideLogin?: boolean;
   hideMobileLogin?: boolean;
+  hidePartner?: boolean;
   filterSlot?: React.ReactNode;
 }
 
-export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hideMobileLogin, filterSlot }: Props) {
+export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hideMobileLogin, hidePartner, filterSlot }: Props) {
   const router = useRouter();
   const [loginOpen, setLoginOpen] = useState(false);
   const [partnerOpen, setPartnerOpen] = useState(false);
@@ -96,15 +97,17 @@ export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hid
 
             {/* Right actions */}
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <button
-                onClick={() => setPartnerOpen(true)}
-                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900 bg-amber-500 hover:bg-amber-400 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                title="Je suis partenaire installateur"
-                aria-label="Je suis partenaire"
-              >
-                <Handshake size={16} />
-                <span className="hidden md:inline">Je suis partenaire</span>
-              </button>
+              {!hidePartner && (
+                <button
+                  onClick={() => setPartnerOpen(true)}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900 bg-amber-500 hover:bg-amber-400 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                  title="Je suis partenaire installateur"
+                  aria-label="Je suis partenaire"
+                >
+                  <Handshake size={16} />
+                  <span className="hidden md:inline">Je suis partenaire</span>
+                </button>
+              )}
               {onCartOpen && (
                 <button
                   onClick={onCartOpen}

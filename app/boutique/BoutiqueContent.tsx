@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { X, ShoppingBag, Package } from "lucide-react";
+import { X, ShoppingBag, Package, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
@@ -129,6 +129,7 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
         onSearchChange={setSearch}
         onCartOpen={() => setCartOpen(true)}
         hideLogin
+        hidePartner
         filterSlot={filters}
       />
 
@@ -137,18 +138,20 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
           Notre <span className="text-amber-400">Boutique</span>
         </h1>
         <p className="text-white/50 text-sm mt-1">Tous nos produits disponibles</p>
-        <Link
-          href="/packs"
-          className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-amber-400 border border-amber-400/40 px-3 py-1.5 rounded-full hover:bg-amber-400/10 transition-colors"
-        >
-          <Package size={13} /> Voir nos packs à prix groupé
-        </Link>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <p className="text-sm text-gray-400 mb-4">
-          {products.length} produit{products.length !== 1 ? "s" : ""} trouvé{products.length !== 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <p className="text-sm text-gray-400">
+            {products.length} produit{products.length !== 1 ? "s" : ""} trouvé{products.length !== 1 ? "s" : ""}
+          </p>
+          <Link
+            href="/packs"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full hover:bg-amber-100 hover:border-amber-300 transition-colors whitespace-nowrap"
+          >
+            <Package size={14} className="text-amber-600" /> Nos packs à prix groupé <ArrowRight size={13} />
+          </Link>
+        </div>
 
         {products.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
