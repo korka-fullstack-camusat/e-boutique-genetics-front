@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Smartphone, CheckCircle } from "lucide-react";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, cartItemLabel } from "@/store/cartStore";
 import { ordersApi } from "@/lib/api";
 import toast from "react-hot-toast";
 import { InvoiceModal, InvoiceData } from "@/components/InvoiceModal";
@@ -67,7 +67,9 @@ export function CheckoutModal({ open, onClose }: { open: boolean; onClose: () =>
     setLoading(true);
     try {
       const orderItems = items.map((i) => ({
-        product_id: i.product.id, product_name: i.product.name,
+        product_id: i.packId ? null : i.product.id,
+        pack_id: i.packId ?? null,
+        product_name: cartItemLabel(i),
         quantity: i.quantity, price: i.product.price,
         size: i.size ?? null, color: i.color ?? null,
       }));

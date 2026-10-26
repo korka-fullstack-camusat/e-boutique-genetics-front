@@ -1,24 +1,23 @@
 import { HomeContent } from "./HomeContent";
-import { Product } from "@/lib/types";
+import { Pack, Product } from "@/lib/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-// Pré-charge les 4 derniers produits sur le serveur — ISR 60 s
-async function fetchLatestProducts(): Promise<Product[]> {
+async function fetchJson<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${BASE}/api/products/`, {
-      cache: "no-store",
-    });
-    if (!res.ok) return [];
-    const all: Product[] = await res.json();
-    return all.slice(0, 4);
+    const res = await fetch(`${BASE}${path}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
   } catch {
-    return [];
+    return null;
   }
 }
 
-// Server Component — HTML pré-rendu avec les produits déjà dedans
+// Server Component — HTML pré-rendu avec les 4 derniers produits et les packs déjà dedans
 export default async function HomePage() {
-  const initialProducts = await fetchLatestProducts();
-  return <HomeContent initialProducts={initialProducts} />;
+  const [products, packs] = await Promise.all([
+    fetchJson<Product[]>("/api/products/"),
+    fetchJson<Pack[]>("/api/packs/"),
+  ]);
+  return <HomeContent initialProducts={(products ?? []).slice(0, 4)} initialPacks={packs ?? []} />;
 }

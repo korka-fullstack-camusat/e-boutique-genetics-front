@@ -53,10 +53,21 @@ export function CartSidebar({ open, onClose, onCheckout }: Props) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{item.product.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {[item.size && `T: ${item.size}`, item.color && `C: ${item.color}`].filter(Boolean).join(" | ") || ""}
+                    <p className="text-sm font-semibold truncate">
+                      {item.packId && (
+                        <span className="mr-1.5 align-middle text-[10px] font-bold uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Pack</span>
+                      )}
+                      {item.product.name}
                     </p>
+                    {item.packItems?.length ? (
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                        {item.packItems.map((p) => `${p.quantity}× ${p.product_name}`).join(" · ")}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {[item.size && `T: ${item.size}`, item.color && `C: ${item.color}`].filter(Boolean).join(" | ") || ""}
+                      </p>
+                    )}
                     <p className="text-sm font-bold text-amber-600 mt-1">
                       {(item.product.price * item.quantity).toLocaleString("fr-FR")} FCFA
                     </p>

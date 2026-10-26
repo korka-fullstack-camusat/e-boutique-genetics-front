@@ -35,7 +35,8 @@ export interface ProductCreate {
 export interface ProductUpdate extends Partial<ProductCreate> {}
 
 export interface OrderItemCreate {
-  product_id: number;
+  product_id?: number | null;
+  pack_id?: number | null;
   product_name: string;
   quantity: number;
   price: number;
@@ -95,10 +96,70 @@ export interface Survey {
 }
 
 export interface CartItem {
+  /** Pour un pack : produit « virtuel » portant le nom, le prix et l'image du pack. */
   product: Product;
   quantity: number;
   size?: string | null;
   color?: string | null;
+  /** Renseigné quand la ligne du panier est un pack. */
+  packId?: number | null;
+  packItems?: PackItem[];
+}
+
+export interface PackItem {
+  product_id: number;
+  quantity: number;
+  product_name: string;
+  product_price: number;
+  product_image: string | null;
+  product_stock: number;
+}
+
+export interface Pack {
+  id: number;
+  name: string;
+  description: string | null;
+  price: number;
+  images: string[];
+  is_active: boolean;
+  created_at: string;
+  items: PackItem[];
+  /** Somme des prix des produits du pack. */
+  regular_price: number;
+  savings: number;
+  /** Nombre de packs réalisables avec le stock actuel. */
+  stock: number;
+}
+
+export interface PackInput {
+  name: string;
+  description?: string | null;
+  price: number;
+  images?: string[];
+  is_active?: boolean;
+  items: { product_id: number; quantity: number }[];
+}
+
+export type PartnerStatus = "nouveau" | "contacte" | "valide" | "refuse";
+
+export interface PartnerApplicationInput {
+  full_name: string;
+  company?: string | null;
+  phone: string;
+  email: string;
+  city: string;
+  zones?: string | null;
+  specialties: string[];
+  experience_years: string;
+  team_size?: string | null;
+  certifications?: string | null;
+  message?: string | null;
+}
+
+export interface PartnerApplication extends PartnerApplicationInput {
+  id: number;
+  status: PartnerStatus;
+  created_at: string;
 }
 
 export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";

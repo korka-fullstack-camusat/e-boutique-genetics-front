@@ -1,7 +1,8 @@
 "use client";
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { X, ShoppingBag } from "lucide-react";
+import { X, ShoppingBag, Package } from "lucide-react";
+import Link from "next/link";
 import { Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 import { CartSidebar } from "@/components/CartSidebar";
@@ -136,6 +137,12 @@ function BoutiqueInner({ initialProducts }: { initialProducts: Product[] }) {
           Notre <span className="text-amber-400">Boutique</span>
         </h1>
         <p className="text-white/50 text-sm mt-1">Tous nos produits disponibles</p>
+        <Link
+          href="/packs"
+          className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-amber-400 border border-amber-400/40 px-3 py-1.5 rounded-full hover:bg-amber-400/10 transition-colors"
+        >
+          <Package size={13} /> Voir nos packs à prix groupé
+        </Link>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">

@@ -1,25 +1,31 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag, Handshake, Package } from "lucide-react";
 import Link from "next/link";
-import { Product } from "@/lib/types";
+import { Pack, Product } from "@/lib/types";
 import { ProductCard } from "@/components/ProductCard";
 import { CartSidebar } from "@/components/CartSidebar";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { CheckoutModal } from "@/components/CheckoutModal";
 import { ContactModal } from "@/components/ContactModal";
+import { PartnerModal } from "@/components/PartnerModal";
+import { PackCard } from "@/components/PackCard";
+import { PackDetailModal } from "@/components/PackDetailModal";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 interface Props {
   initialProducts: Product[];
+  initialPacks: Pack[];
 }
 
-export function HomeContent({ initialProducts }: Props) {
+export function HomeContent({ initialProducts, initialPacks }: Props) {
   const [cartOpen, setCartOpen]       = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(false);
+  const [detailPack, setDetailPack]   = useState<Pack | null>(null);
 
   return (
     <>
@@ -51,12 +57,43 @@ export function HomeContent({ initialProducts }: Props) {
             >
               Demander un devis
             </button>
+            <button
+              onClick={() => setPartnerOpen(true)}
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 text-amber-400 rounded-full font-bold text-sm hover:text-amber-300 transition-colors"
+            >
+              <Handshake size={16} /> Devenir partenaire
+            </button>
           </div>
         </div>
       </section>
 
-      {/* ── Nouveautés ─────────────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-4 py-12">
+        {/* ── Packs ───────────────────────────────────────────────────────── */}
+        {initialPacks.length > 0 && (
+          <section className="mb-14">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <Package size={22} className="text-amber-500" /> Nos packs
+                </h2>
+                <p className="text-sm text-gray-400 mt-0.5">Des solutions complètes à prix groupé</p>
+              </div>
+              <Link
+                href="/packs"
+                className="flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+              >
+                Voir tous les packs <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5">
+              {initialPacks.slice(0, 4).map((p) => (
+                <PackCard key={p.id} pack={p} onDetail={setDetailPack} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Nouveautés ─────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Nouveautés</h2>
@@ -104,6 +141,8 @@ export function HomeContent({ initialProducts }: Props) {
       <ProductDetailModal product={detailProduct} onClose={() => setDetailProduct(null)} />
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
       <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
+      <PartnerModal open={partnerOpen} onClose={() => setPartnerOpen(false)} />
+      <PackDetailModal pack={detailPack} onClose={() => setDetailPack(null)} />
     </>
   );
 }

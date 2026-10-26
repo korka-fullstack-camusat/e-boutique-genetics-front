@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingCart, LogOut, Menu, X, Package, Users } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, LogOut, Menu, X, Package, Users, Boxes, Handshake } from "lucide-react";
 import Link from "next/link";
 
 type NavItem = { href: string; label: string; icon: React.ElementType };
@@ -9,12 +9,15 @@ type NavItem = { href: string; label: string; icon: React.ElementType };
 const NAV_FULL: NavItem[] = [
   { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin",           label: "Produits",        icon: Package },
+  { href: "/admin/packs",     label: "Packs",           icon: Boxes },
   { href: "/admin/orders",    label: "Commandes",       icon: ShoppingCart },
+  { href: "/admin/partners",  label: "Partenaires",     icon: Handshake },
   { href: "/admin/accounts",  label: "Gestion comptes", icon: Users },
 ];
 
 const NAV_GESTIONNAIRE: NavItem[] = [
-  { href: "/admin", label: "Produits", icon: Package },
+  { href: "/admin",       label: "Produits", icon: Package },
+  { href: "/admin/packs", label: "Packs",    icon: Boxes },
 ];
 
 // Pages accessibles uniquement aux admins complets
@@ -23,6 +26,7 @@ const ADMIN_ONLY_PATHS = [
   "/admin/orders",
   "/admin/surveys",
   "/admin/accounts",
+  "/admin/partners",
 ];
 
 function SidebarBrand({ subtitle }: { subtitle: string }) {

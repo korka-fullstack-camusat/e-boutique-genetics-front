@@ -2,6 +2,7 @@ import {
   Product, ProductCreate, ProductUpdate,
   Order, OrderCreate, OrderUpdate,
   Survey, AdminUser,
+  Pack, PackInput, PartnerApplication, PartnerApplicationInput, PartnerStatus,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -182,6 +183,31 @@ export const contactApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+};
+
+// ── Packs ─────────────────────────────────────────────────────────────────────
+export const packsApi = {
+  /** Packs visibles sur la boutique. */
+  list: () => request<Pack[]>("/api/packs/"),
+  /** Tous les packs, y compris masqués (admin). */
+  listAll: () => authRequest<Pack[]>("/api/packs/admin/all"),
+  create: (data: PackInput) =>
+    authRequest<Pack>("/api/packs/", { method: "POST", body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<PackInput>) =>
+    authRequest<Pack>(`/api/packs/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  delete: (id: number) =>
+    authRequest<{ message: string }>(`/api/packs/${id}`, { method: "DELETE" }),
+};
+
+// ── Partenaires installateurs ─────────────────────────────────────────────────
+export const partnersApi = {
+  apply: (data: PartnerApplicationInput) =>
+    request<{ message: string; id: number }>("/api/partners/", { method: "POST", body: JSON.stringify(data) }),
+  list: () => authRequest<PartnerApplication[]>("/api/partners/"),
+  updateStatus: (id: number, status: PartnerStatus) =>
+    authRequest<PartnerApplication>(`/api/partners/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  delete: (id: number) =>
+    authRequest<{ message: string }>(`/api/partners/${id}`, { method: "DELETE" }),
 };
 
 // ── Revalidation (cache ISR du site public) ───────────────────────────────────

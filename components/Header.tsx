@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag, Handshake } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
 import { LoginModal } from "./LoginModal";
+import { PartnerModal } from "./PartnerModal";
 
 interface Props {
   searchValue?: string;
@@ -19,6 +20,7 @@ interface Props {
 export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hideMobileLogin, filterSlot }: Props) {
   const router = useRouter();
   const [loginOpen, setLoginOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchValue ?? "");
   const cartCount = useCartStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
@@ -94,6 +96,15 @@ export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hid
 
             {/* Right actions */}
             <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <button
+                onClick={() => setPartnerOpen(true)}
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-900 bg-amber-500 hover:bg-amber-400 px-2.5 sm:px-3.5 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                title="Je suis partenaire installateur"
+                aria-label="Je suis partenaire"
+              >
+                <Handshake size={16} />
+                <span className="hidden md:inline">Je suis partenaire</span>
+              </button>
               {onCartOpen && (
                 <button
                   onClick={onCartOpen}
@@ -130,6 +141,7 @@ export function Header({ searchValue, onSearchChange, onCartOpen, hideLogin, hid
       </header>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <PartnerModal open={partnerOpen} onClose={() => setPartnerOpen(false)} />
     </>
   );
 }
