@@ -54,25 +54,25 @@ export const productsApi = {
   },
   get: (id: number) => request<Product>(`/api/products/${id}`),
   create: (data: ProductCreate) =>
-    request<Product>("/api/products/", { method: "POST", body: JSON.stringify(data) }),
+    authRequest<Product>("/api/products/", { method: "POST", body: JSON.stringify(data) }),
   update: (id: number, data: ProductUpdate) =>
-    request<Product>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    authRequest<Product>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   delete: (id: number) =>
-    request<unknown>(`/api/products/${id}`, { method: "DELETE" }),
+    authRequest<unknown>(`/api/products/${id}`, { method: "DELETE" }),
   /** Prix d'achat de tous les produits (admin). */
   costs: () => authRequest<{ id: number; cost_price: number | null }[]>("/api/products/admin/costs"),
 };
 
 // ── Orders ────────────────────────────────────────────────────────────────────
 export const ordersApi = {
-  list: () => request<Order[]>("/api/orders/"),
-  get: (id: number) => request<Order>(`/api/orders/${id}`),
+  list: () => authRequest<Order[]>("/api/orders/"),
+  get: (id: number) => authRequest<Order>(`/api/orders/${id}`),
   create: (data: OrderCreate) =>
     request<{ message: string; order_id: number; invoice_number: number | null }>("/api/orders/", { method: "POST", body: JSON.stringify(data) }),
   updateStatus: (id: number, data: OrderUpdate) =>
-    request<Order>(`/api/orders/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    authRequest<Order>(`/api/orders/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   sendInvoice: (id: number) =>
-    request<{ message: string }>(`/api/orders/${id}/send-invoice`, { method: "POST" }),
+    authRequest<{ message: string }>(`/api/orders/${id}/send-invoice`, { method: "POST" }),
   delete: (id: number) =>
     authRequest<{ message: string }>(`/api/orders/${id}`, { method: "DELETE" }),
 };
@@ -151,7 +151,10 @@ export const uploadApi = {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
     try {
-      const res = await fetch(BASE + "/api/upload/", { method: "POST", body: form, signal: controller.signal });
+      // Pas de Content-Type : le navigateur fixe lui-même la frontière multipart
+      const res = await fetch(BASE + "/api/upload/", {
+        method: "POST", body: form, headers: authHeaders(), signal: controller.signal,
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         throw new Error(body?.detail || `Erreur upload (${res.status})`);
@@ -235,7 +238,7 @@ export const revalidateApi = {
 
 // ── Survey ────────────────────────────────────────────────────────────────────
 export const surveysApi = {
-  list: () => request<Survey[]>("/api/survey/surveys/"),
-  get: (id: number) => request<Survey>(`/api/survey/surveys/${id}`),
-  delete: (id: number) => request<unknown>(`/api/survey/surveys/${id}`, { method: "DELETE" }),
+  list: () => authRequest<Survey[]>("/api/survey/surveys/"),
+  get: (id: number) => authRequest<Survey>(`/api/survey/surveys/${id}`),
+  delete: (id: number) => authRequest<unknown>(`/api/survey/surveys/${id}`, { method: "DELETE" }),
 };
