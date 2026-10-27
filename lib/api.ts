@@ -3,6 +3,7 @@ import {
   Order, OrderCreate, OrderUpdate,
   Survey, AdminUser,
   Pack, PackInput, PartnerApplication, PartnerApplicationInput, PartnerStatus,
+  ProfitStats, MaintenanceSetting,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -58,6 +59,8 @@ export const productsApi = {
     request<Product>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   delete: (id: number) =>
     request<unknown>(`/api/products/${id}`, { method: "DELETE" }),
+  /** Prix d'achat de tous les produits (admin). */
+  costs: () => authRequest<{ id: number; cost_price: number | null }[]>("/api/products/admin/costs"),
 };
 
 // ── Orders ────────────────────────────────────────────────────────────────────
@@ -70,6 +73,20 @@ export const ordersApi = {
     request<Order>(`/api/orders/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   sendInvoice: (id: number) =>
     request<{ message: string }>(`/api/orders/${id}/send-invoice`, { method: "POST" }),
+  delete: (id: number) =>
+    authRequest<{ message: string }>(`/api/orders/${id}`, { method: "DELETE" }),
+};
+
+// ── Statistiques (admin) ──────────────────────────────────────────────────────
+export const statsApi = {
+  profit: () => authRequest<ProfitStats>("/api/stats/profit"),
+};
+
+// ── Réglages : mode maintenance ───────────────────────────────────────────────
+export const settingsApi = {
+  maintenance: () => request<MaintenanceSetting>("/api/settings/maintenance", { cache: "no-store" }),
+  setMaintenance: (data: { enabled: boolean; message?: string | null }) =>
+    authRequest<MaintenanceSetting>("/api/settings/maintenance", { method: "PUT", body: JSON.stringify(data) }),
 };
 
 // ── Auth ──────────────────────────────────────────────────────────────────────

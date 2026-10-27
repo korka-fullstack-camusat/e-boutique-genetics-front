@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { ShoppingCart, Eye, X, CheckCircle, XCircle, Search, ChevronLeft, ChevronRight, FileText, Send, Loader2 } from "lucide-react";
+import { ShoppingCart, Eye, X, CheckCircle, XCircle, Search, ChevronLeft, ChevronRight, FileText, Send, Loader2, Trash2 } from "lucide-react";
 import { ordersApi } from "@/lib/api";
 import { Order } from "@/lib/types";
 import { InvoiceModal, InvoiceData } from "@/components/InvoiceModal";
@@ -41,6 +41,10 @@ export default function AdminOrdersPage() {
   const [adminInvoiceOpen, setAdminInvoiceOpen]   = useState(false);
   const [sendingInvoice, setSendingInvoice]       = useState(false);
 
+  // Suppression
+  const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
+  const [deleting, setDeleting]         = useState(false);
+
   useEffect(() => { load(); }, []);
 
   async function load() {
@@ -61,6 +65,26 @@ export default function AdminOrdersPage() {
       toast.error("Erreur mise à jour");
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    const target = deleteTarget;
+    setDeleting(true);
+    try {
+      await ordersApi.delete(target.id);
+      setOrders((prev) => prev.filter((o) => o.id !== target.id));
+      setDeleteTarget(null);
+      setSelected(null);
+      toast.success(`Commande #${target.id} supprimée`);
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "";
+      let msg = "Erreur lors de la suppression";
+      try { msg = JSON.parse(raw).detail || msg; } catch { /* texte brut */ }
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -315,9 +339,22 @@ export default function AdminOrdersPage() {
                     {STATUS_LABELS[selected.status] ?? selected.status}
                   </span>
                 </div>
-                <button onClick={() => setSelected(null)} className="p-1.5 rounded-full hover:bg-gray-100">
-                  <X size={18} />
-                </button>
+                <div className="flex items-center gap-1">
+                  {/* Suppression possible uniquement pour une commande déjà traitée */}
+                  {selected.status !== "pending" && (
+                    <button
+                      onClick={() => setDeleteTarget(selected)}
+                      title="Supprimer la commande"
+                      aria-label="Supprimer la commande"
+                      className="p-1.5 rounded-full text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  )}
+                  <button onClick={() => setSelected(null)} className="p-1.5 rounded-full hover:bg-gray-100">
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
 
               <div className="p-5 space-y-5">
@@ -414,6 +451,41 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* ── Confirmation suppression (au-dessus du détail) ──────────────────── */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[70] bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 size={22} className="text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Supprimer la commande #{deleteTarget.id} ?</h3>
+            <p className="text-sm text-gray-500">
+              {deleteTarget.customer_name} · {deleteTarget.total_amount.toLocaleString("fr-FR")} FCFA ·{" "}
+              {STATUS_LABELS[deleteTarget.status] ?? deleteTarget.status}
+            </p>
+            <p className="text-sm text-red-600 font-medium mt-3 mb-6">
+              Cette action est définitive. La commande disparaîtra aussi des statistiques et du calcul du bénéfice.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="flex-1 py-2.5 border border-gray-200 rounded-xl font-semibold text-sm text-gray-600 hover:border-gray-400 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 py-2.5 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {deleting && <Loader2 size={15} className="animate-spin" />} Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Facture admin (z-[60] — au-dessus du modal commande) */}
       <InvoiceModal

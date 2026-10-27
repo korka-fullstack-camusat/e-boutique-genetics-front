@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { PacksContent } from "./PacksContent";
 import { Pack } from "@/lib/types";
+import { getMaintenance } from "@/lib/maintenance";
+import { MaintenanceScreen } from "@/components/MaintenanceScreen";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -20,6 +22,9 @@ async function fetchPacks(): Promise<Pack[]> {
 }
 
 export default async function PacksPage() {
+  const maintenance = await getMaintenance();
+  if (maintenance) return <MaintenanceScreen message={maintenance.message} />;
+
   const packs = await fetchPacks();
   return <PacksContent initialPacks={packs} />;
 }

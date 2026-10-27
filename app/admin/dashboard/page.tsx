@@ -5,6 +5,7 @@ import { ShoppingCart, Package, TrendingUp, Clock, ArrowRight, CheckCircle2, XCi
 import { productsApi, ordersApi } from "@/lib/api";
 import { Order, Product } from "@/lib/types";
 import Link from "next/link";
+import { ProfitPanel } from "@/components/admin/ProfitPanel";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending:   { label: "En attente",  color: "bg-yellow-100 text-yellow-700" },
@@ -103,6 +104,9 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* ── Bénéfice ──────────────────────────────────────────────────────── */}
+      <ProfitPanel />
 
       {/* ── Recent orders ─────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

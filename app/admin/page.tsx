@@ -22,7 +22,7 @@ const DISPO_OPTIONS = ["24h", "48h", "72h"];
 const EMPTY: ProductCreate = {
   name: "", description: "", price: 0, category: "",
   sous_category: "", stock: 0, images: [], sizes: [], colors: [],
-  condition: "neuf", reference: "", marque: "", disponibilite: "",
+  condition: "neuf", reference: "", marque: "", disponibilite: "", cost_price: null,
 };
 
 export default function AdminProductsPage() {
@@ -45,8 +45,15 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
   const imagePreviewRef = useRef<HTMLDivElement>(null);
+  // Prix d'achat (chargés séparément : l'API publique des produits ne les expose pas)
+  const [costs, setCosts] = useState<Record<number, number | null>>({});
 
   useEffect(() => { loadProducts(); }, []);
+  useEffect(() => {
+    productsApi.costs()
+      .then((list) => setCosts(Object.fromEntries(list.map((c) => [c.id, c.cost_price]))))
+      .catch(() => { /* rôle sans accès ou API indisponible : champ laissé vide */ });
+  }, []);
 
   async function loadProducts(showLoading = true) {
     if (showLoading) setLoading(true);
@@ -71,6 +78,7 @@ export default function AdminProductsPage() {
       reference: p.reference || "",
       marque: p.marque || "",
       disponibilite: p.disponibilite || "",
+      cost_price: costs[p.id] ?? null,
     });
     setModalOpen(true);
   }
@@ -95,11 +103,13 @@ export default function AdminProductsPage() {
     try {
       if (editing) {
         await productsApi.update(editing.id, { ...form } as ProductUpdate);
+        setCosts((prev) => ({ ...prev, [editing.id]: form.cost_price ?? null }));
         // mise à jour instantanée dans l'état local
         setProducts((prev) => prev.map((p) => p.id === editing.id ? { ...p, ...form } : p));
         toast.success("Produit mis à jour");
       } else {
-        await productsApi.create(form);
+        const created = await productsApi.create(form);
+        setCosts((prev) => ({ ...prev, [created.id]: form.cost_price ?? null }));
         toast.success("Produit créé");
         loadProducts(false); // rechargement silencieux pour obtenir l'ID du nouveau produit
       }
@@ -581,6 +591,26 @@ export default function AdminProductsPage() {
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
                   />
                 </div>
+              </div>
+
+              {/* Prix d'achat (bénéfice) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">
+                  Prix d&apos;achat (FCFA) <span className="normal-case font-normal text-gray-400">— privé, sert au calcul du bénéfice</span>
+                </label>
+                <input
+                  type="number" min="0"
+                  value={form.cost_price ?? ""}
+                  onChange={(e) => setForm((f) => ({ ...f, cost_price: e.target.value === "" ? null : Number(e.target.value) }))}
+                  placeholder="Non renseigné"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
+                />
+                {form.cost_price != null && form.price > 0 && (
+                  <p className={`text-xs mt-1 font-semibold ${form.price - form.cost_price >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    Marge : {(form.price - form.cost_price).toLocaleString("fr-FR")} F
+                    ({Math.round(((form.price - form.cost_price) / form.price) * 100)} % du prix de vente)
+                  </p>
+                )}
               </div>
 
               {/* Catégorie */}

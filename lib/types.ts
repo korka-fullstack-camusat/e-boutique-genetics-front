@@ -30,6 +30,8 @@ export interface ProductCreate {
   reference?: string | null;
   marque?: string | null;
   disponibilite?: string | null;
+  /** Prix d'achat — envoyé à l'API admin, jamais renvoyé par l'API publique. */
+  cost_price?: number | null;
 }
 
 export interface ProductUpdate extends Partial<ProductCreate> {}
@@ -171,4 +173,31 @@ export interface AdminUser {
   role: string;
   is_active: boolean;
   created_at: string;
+}
+
+// ── Bénéfice (tableau de bord) ────────────────────────────────────────────────
+export interface ProfitPeriod {
+  orders: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  revenue_with_cost: number;
+  revenue_without_cost: number;
+  margin: number | null;
+}
+
+export interface ProfitStats {
+  periods: { month: ProfitPeriod; previous_month: ProfitPeriod; all: ProfitPeriod };
+  monthly: { month: string; revenue: number; profit: number; orders: number }[];
+  top_products: { name: string; quantity: number; revenue: number; profit: number }[];
+  missing_cost: { name: string; revenue: number }[];
+  products_without_cost: number;
+  products_total: number;
+}
+
+// ── Mode maintenance ──────────────────────────────────────────────────────────
+export interface MaintenanceSetting {
+  enabled: boolean;
+  message: string;
+  updated_at: string | null;
 }

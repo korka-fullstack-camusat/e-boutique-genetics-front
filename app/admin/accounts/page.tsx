@@ -5,6 +5,7 @@ import {
   ShieldCheck, ShieldAlert, KeyRound, Settings2,
 } from "lucide-react";
 import { adminUsersApi } from "@/lib/api";
+import { MaintenanceCard } from "@/components/admin/MaintenanceCard";
 import { AdminUser } from "@/lib/types";
 import toast from "react-hot-toast";
 
@@ -159,6 +160,8 @@ export default function AdminAccountsPage() {
           <Plus size={16} /> Nouveau compte
         </button>
       </div>
+
+      <MaintenanceCard />
 
       {/* ── Barre recherche + filtres ────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 mb-4">

@@ -74,14 +74,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
 
+  // La page de connexion s'affiche sans la barre admin et sans exiger de session
+  const isLoginPage = pathname === "/admin/login";
+
   // Auth + rôle
   useEffect(() => {
+    if (isLoginPage) return;
     const token = localStorage.getItem("gg_admin_token");
-    if (!token) { router.replace("/"); return; }
+    if (!token) { router.replace("/admin/login"); return; }
     const storedRole = localStorage.getItem("gg_admin_role") || "admin";
     setRole(storedRole);
     setAuthed(true);
-  }, [router]);
+  }, [router, isLoginPage]);
 
   // Protection des pages réservées aux admins
   useEffect(() => {
@@ -97,6 +101,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.replace("/");
   }
 
+  if (isLoginPage) return <>{children}</>;
   if (authed === null) return null;
 
   const navItems  = role === "gestionnaire" ? NAV_GESTIONNAIRE : NAV_FULL;
